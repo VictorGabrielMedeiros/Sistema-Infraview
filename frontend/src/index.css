@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  background-image: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0%, rgba(233, 226, 251, 0.28) 90%);
+}
+
+#root {
+  min-height: 100vh;
+}

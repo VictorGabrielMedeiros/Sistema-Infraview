@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infraview-backend
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - DATABASE_URL=sqlite:////app/data/network.db
+      - SNMP_COMMUNITY=public
+      - CORS_ORIGINS=http://localhost,http://127.0.0.1
+      - PING_ENABLED=true
+      - PING_TIMEOUT_SEC=1
+      # - SCAN_SUBNET=192.168.1.0/24
+    volumes:
+      - infraview-data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infraview-frontend
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - backend
+
+volumes:
+  infraview-data:
+

@@ -1,0 +1,28 @@
+# Python
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+backend/.env
+.env
+backend/data/
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Node
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.npm
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
