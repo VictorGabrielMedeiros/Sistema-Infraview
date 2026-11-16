@@ -1,5 +1,21 @@
 from contextlib import asynccontextmanager
+import os
 from pathlib import Path
+
+# Garantir que os diretórios de executáveis padrão do sistema estejam no PATH
+_STANDARD_PATHS = [
+    "/usr/local/sbin",
+    "/usr/local/bin",
+    "/usr/sbin",
+    "/usr/bin",
+    "/sbin",
+    "/bin",
+]
+_paths = os.environ.get("PATH", "").split(os.pathsep)
+for _p in _STANDARD_PATHS:
+    if _p not in _paths:
+        _paths.append(_p)
+os.environ["PATH"] = os.pathsep.join(_paths)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

@@ -172,7 +172,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/opt/infraview/backend
-Environment="PATH=/opt/infraview/backend/venv/bin"
+Environment="PATH=/opt/infraview/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ExecStart=/opt/infraview/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=always
 RestartSec=5
@@ -377,24 +377,34 @@ O arquivo de configuração fica localizado em `/opt/infraview/backend/.env`:
 
 ## 9. Rotina de Backup e Restauração
 
-### Backup (SQLite)
+O InfraView inclui o script automatizado `backup.sh`:
 
 ```bash
-# Criar backup com o SQLite online (modo seguro)
-sudo sqlite3 /opt/infraview/backend/data/network.db ".backup '/opt/infraview/backend/data/backup_$(date +%F).db'"
+sudo bash /opt/infraview/backup.sh
 ```
 
-### Backup (PostgreSQL)
+Os backups são salvos compactados em `/var/backups/infraview/` e o script mantém automaticamente os últimos 15 dias de histórico.
+
+Para agendar o backup diário às 03:00 no `crontab`:
 
 ```bash
-pg_dump -U infraview -h localhost infraview | gzip > /opt/backup_infraview_$(date +%F).sql.gz
+sudo crontab -e
+# Adicione a linha:
+0 3 * * * /bin/bash /opt/infraview/backup.sh >/dev/null 2>&1
 ```
 
 ---
 
 ## 10. Atualização do Sistema
 
-Para atualizar o InfraView para uma nova versão:
+Para atualizar o InfraView de forma rápida no servidor de produção, utilize o script `update.sh`:
+
+```bash
+cd /opt/infraview
+sudo bash update.sh
+```
+
+Ou execute manualmente se preferir:
 
 ```bash
 cd /opt/infraview

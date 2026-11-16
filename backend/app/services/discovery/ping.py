@@ -12,6 +12,18 @@ from app.services.discovery.correlator import RawDevice
 logger = logging.getLogger(__name__)
 
 
+def _find_cmd(name: str) -> str:
+    import shutil
+    found = shutil.which(name)
+    if found:
+        return found
+    for p in [f"/sbin/{name}", f"/usr/sbin/{name}", f"/bin/{name}", f"/usr/bin/{name}"]:
+        import os
+        if os.path.isfile(p) and os.access(p, os.X_OK):
+            return p
+    return name
+
+
 def _detect_subnet() -> str | None:
     # 1) If user explicitly specified SCAN_SUBNET in .env
     if settings.scan_subnet:
@@ -23,8 +35,9 @@ def _detect_subnet() -> str | None:
 
     # 2) Try Linux `ip -4 route show default`
     try:
+        ip_cmd = _find_cmd("ip")
         result = subprocess.run(
-            ["ip", "-4", "route", "show", "default"],
+            [ip_cmd, "-4", "route", "show", "default"],
             capture_output=True,
             text=True,
             timeout=5,
@@ -36,7 +49,7 @@ def _detect_subnet() -> str | None:
                 dev_idx = parts.index("dev")
                 iface = parts[dev_idx + 1]
                 addr_result = subprocess.run(
-                    ["ip", "-4", "addr", "show", iface],
+                    [ip_cmd, "-4", "addr", "show", iface],
                     capture_output=True,
                     text=True,
                     timeout=5,

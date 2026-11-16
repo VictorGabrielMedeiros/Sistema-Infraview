@@ -110,7 +110,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/opt/infraview/backend
-Environment="PATH=/opt/infraview/backend/venv/bin"
+Environment="PATH=/opt/infraview/backend/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ExecStart=/opt/infraview/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 Restart=always
 RestartSec=5

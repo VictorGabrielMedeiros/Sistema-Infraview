@@ -14,10 +14,22 @@ NEIGH_LINE = re.compile(
 VALID_STATES = {"REACHABLE", "STALE", "DELAY", "PROBE", "PERMANENT"}
 
 
+def _find_ip_cmd() -> str:
+    import shutil
+    found = shutil.which("ip")
+    if found:
+        return found
+    for p in ["/sbin/ip", "/usr/sbin/ip", "/bin/ip", "/usr/bin/ip"]:
+        import os
+        if os.path.isfile(p) and os.access(p, os.X_OK):
+            return p
+    return "ip"
+
+
 def scan_arp() -> tuple[list[RawDevice], str | None]:
     try:
         result = subprocess.run(
-            ["ip", "neigh", "show"],
+            [_find_ip_cmd(), "neigh", "show"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -51,7 +63,7 @@ def get_interface_macs() -> dict[str, str]:
     mapping: dict[str, str] = {}
     try:
         result = subprocess.run(
-            ["ip", "-o", "link", "show"],
+            [_find_ip_cmd(), "-o", "link", "show"],
             capture_output=True,
             text=True,
             timeout=10,

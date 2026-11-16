@@ -261,14 +261,26 @@ def _parse_lldp_json(data: list | dict, iface_macs: dict[str, str]) -> tuple[lis
     return devices, links
 
 
+def _find_cmd(name: str) -> str:
+    import shutil
+    found = shutil.which(name)
+    if found:
+        return found
+    for p in [f"/usr/sbin/{name}", f"/sbin/{name}", f"/usr/bin/{name}", f"/bin/{name}"]:
+        import os
+        if os.path.isfile(p) and os.access(p, os.X_OK):
+            return p
+    return name
+
+
 def scan_lldp() -> tuple[list[RawDevice], list[RawLink], str | None]:
     """Run lldpctl and parse the results.
 
     Tries lldpctl first, then lldpcli as fallback.
     """
     cmds = [
-        ["lldpctl", "-f", "json"],
-        ["lldpcli", "-f", "json", "show", "neighbors"],
+        [_find_cmd("lldpctl"), "-f", "json"],
+        [_find_cmd("lldpcli"), "-f", "json", "show", "neighbors"],
     ]
 
     for cmd in cmds:
