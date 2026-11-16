@@ -23,6 +23,9 @@ fi
 cd "$INSTALL_DIR"
 echo -e "${BLUE}=== Atualizando InfraView em ${INSTALL_DIR} ===${NC}"
 
+# Garantir safe.directory no git para evitar erro de dubious ownership
+git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
+
 # 1. Puxar as novidades do Git
 echo -e "${BLUE}[1/4] Baixando atualizações do repositório...${NC}"
 git pull origin main
@@ -49,9 +52,10 @@ usermod -aG _lldpd www-data 2>/dev/null || true
 usermod -aG lldpd www-data 2>/dev/null || true
 chmod a+rx /usr/sbin/lldpctl /usr/sbin/lldpcli /sbin/lldpctl /sbin/lldpcli 2>/dev/null || true
 
-chown -R www-data:www-data "$INSTALL_DIR"
-chmod -R 755 "$INSTALL_DIR/frontend/dist"
+# Garantir permissões de escrita apenas onde necessário
+chown -R www-data:www-data "$INSTALL_DIR/backend/data"
 chmod -R 775 "$INSTALL_DIR/backend/data"
+chmod -R 755 "$INSTALL_DIR"
 
 systemctl restart infraview-api
 systemctl reload nginx

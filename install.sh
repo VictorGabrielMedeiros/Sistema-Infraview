@@ -95,11 +95,11 @@ cd "$INSTALL_DIR/frontend"
 npm install
 npm run build
 
-# Ajustar permissões para o usuário www-data
-chown -R www-data:www-data "$INSTALL_DIR"
-chmod 755 "$INSTALL_DIR"
-chmod -R 755 "$INSTALL_DIR/frontend/dist"
+# Ajustar permissões para o usuário www-data (escrita em data, leitura no restante)
+chown -R www-data:www-data "$INSTALL_DIR/backend/data"
 chmod -R 775 "$INSTALL_DIR/backend/data"
+chmod -R 755 "$INSTALL_DIR"
+git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
 
 echo -e "${BLUE}[6/7] Configurando serviço systemd (infraview-api)...${NC}"
 cat << 'EOF' > /etc/systemd/system/infraview-api.service

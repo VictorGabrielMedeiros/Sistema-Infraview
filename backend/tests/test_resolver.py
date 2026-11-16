@@ -24,3 +24,4 @@ def test_resolve_single_device_preserves_existing_hostname():
     resolve_single_device(device)
     assert device.hostname == "EXISTING-SERVER"
     assert device.device_type == "server"
+
