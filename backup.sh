@@ -41,3 +41,4 @@ fi
 # Manter apenas os últimos 15 backups para economizar disco
 find "$BACKUP_DIR" -type f -name "infraview_*" -mtime +15 -delete 2>/dev/null || true
 echo "Rotina de backup finalizada."
+

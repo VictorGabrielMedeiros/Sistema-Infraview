@@ -24,14 +24,21 @@ def _find_cmd(name: str) -> str:
     return name
 
 
-def _detect_subnet() -> str | None:
-    # 1) If user explicitly specified SCAN_SUBNET in .env
+def _detect_subnets() -> list[str]:
+    # 1) If user explicitly specified SCAN_SUBNET (supports single or comma-separated CIDRs)
     if settings.scan_subnet:
-        try:
-            net = ipaddress.ip_network(settings.scan_subnet.strip(), strict=False)
-            return str(net)
-        except ValueError:
-            logger.warning("SCAN_SUBNET configurada inválida: %s", settings.scan_subnet)
+        subnets: list[str] = []
+        for raw_net in settings.scan_subnet.split(","):
+            raw_net = raw_net.strip()
+            if not raw_net:
+                continue
+            try:
+                net = ipaddress.ip_network(raw_net, strict=False)
+                subnets.append(str(net))
+            except ValueError:
+                logger.warning("SCAN_SUBNET configurada inválida: %s", raw_net)
+        if subnets:
+            return subnets
 
     # 2) Try Linux `ip -4 route show default`
     try:
@@ -58,7 +65,7 @@ def _detect_subnet() -> str | None:
                 match = re.search(r"inet (\d+\.\d+\.\d+\.\d+/\d+)", addr_result.stdout)
                 if match:
                     network = ipaddress.ip_network(match.group(1), strict=False)
-                    return str(network)
+                    return [str(network)]
     except (FileNotFoundError, subprocess.TimeoutExpired, ValueError):
         pass
 
@@ -69,11 +76,11 @@ def _detect_subnet() -> str | None:
             local_ip = s.getsockname()[0]
             if local_ip and not local_ip.startswith("127."):
                 network = ipaddress.ip_network(f"{local_ip}/24", strict=False)
-                return str(network)
+                return [str(network)]
     except Exception:
         pass
 
-    return None
+    return []
 
 
 def _ping_host(ip: str) -> str | None:
@@ -100,25 +107,31 @@ def scan_ping() -> tuple[list[RawDevice], str | None]:
     if not settings.ping_enabled:
         return [], None
 
-    subnet = _detect_subnet()
-    if not subnet:
+    subnets = _detect_subnets()
+    if not subnets:
         return [], "Não foi possível detectar sub-rede para ping sweep"
 
-    try:
-        network = ipaddress.ip_network(subnet, strict=False)
-    except ValueError:
-        return [], f"Sub-rede inválida: {subnet}"
+    all_hosts: list[str] = []
+    for subnet in subnets:
+        try:
+            network = ipaddress.ip_network(subnet, strict=False)
+            hosts = [str(h) for h in list(network.hosts())[:254]]
+            all_hosts.extend(hosts)
+        except ValueError:
+            continue
 
-    # Limit to at most 254 hosts to avoid long blocking sweeps
-    hosts = [str(h) for h in list(network.hosts())[:254]]
+    unique_hosts = list(dict.fromkeys(all_hosts))
+    if not unique_hosts:
+        return [], "Nenhum endereço de host válido nas sub-redes configuradas"
 
     found: list[RawDevice] = []
-    with ThreadPoolExecutor(max_workers=32) as pool:
-        futures = {pool.submit(_ping_host, ip): ip for ip in hosts}
+    workers = min(64, max(16, len(unique_hosts)))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(_ping_host, ip): ip for ip in unique_hosts}
         for future in as_completed(futures):
             ip = future.result()
             if ip:
                 found.append(RawDevice(ip=ip, source="ping"))
 
-    logger.info("Ping sweep: %d hosts responded in %s", len(found), subnet)
+    logger.info("Ping sweep: %d hosts responderam em %s", len(found), ", ".join(subnets))
     return found, None

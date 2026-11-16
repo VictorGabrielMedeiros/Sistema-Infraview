@@ -58,3 +58,4 @@ echo -e "${GREEN}        InfraView atualizado com sucesso!                ${NC}"
 echo -e "${GREEN}==========================================================${NC}"
 echo "Status da API: $(systemctl is-active infraview-api)"
 echo "Status do Nginx: $(systemctl is-active nginx)"
+
