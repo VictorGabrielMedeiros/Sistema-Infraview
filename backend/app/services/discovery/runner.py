@@ -12,6 +12,7 @@ from app.services.discovery.arp import scan_arp
 from app.services.discovery.correlator import CorrelatedDevice, RawDevice, RawLink, correlate, merge_device, normalize_mac
 from app.services.discovery.lldp import scan_lldp
 from app.services.discovery.ping import scan_ping
+from app.services.discovery.resolver import resolve_hostnames
 from app.services.snmp import enrich_devices
 
 _discovery_lock = threading.Lock()
@@ -175,6 +176,9 @@ def run_discovery(db: Session) -> DiscoveryRun:
 
             correlated = correlate(lldp_devices, arp_entries)
             correlated = _merge_ping_into_correlated(correlated, ping_entries)
+
+            # Resolve computer/machine names via NetBIOS and Reverse DNS
+            correlated = resolve_hostnames(correlated)
 
             snmp_inputs = [
                 RawDevice(

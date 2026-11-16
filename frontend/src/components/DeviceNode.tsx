@@ -18,28 +18,99 @@ import {
   Wifi,
 } from "lucide-react"
 
-const typeStyles: Record<string, string> = {
-  switch: "border-emerald-500/60 bg-gradient-to-br from-emerald-50 to-emerald-100/60",
-  router: "border-blue-500/60 bg-gradient-to-br from-blue-50 to-blue-100/60",
-  printer: "border-orange-500/60 bg-gradient-to-br from-orange-50 to-orange-100/60",
-  server: "border-violet-500/60 bg-gradient-to-br from-violet-50 to-violet-100/60",
-  computer: "border-cyan-500/60 bg-gradient-to-br from-cyan-50 to-cyan-100/60",
-  phone: "border-pink-500/60 bg-gradient-to-br from-pink-50 to-pink-100/60",
-  access_point: "border-teal-500/60 bg-gradient-to-br from-teal-50 to-teal-100/60",
-  firewall: "border-red-500/60 bg-gradient-to-br from-red-50 to-red-100/60",
-  unknown: "border-slate-400/60 bg-gradient-to-br from-slate-50 to-slate-100/60",
-}
-
-const typeIconColors: Record<string, string> = {
-  switch: "text-emerald-600",
-  router: "text-blue-600",
-  printer: "text-orange-600",
-  server: "text-violet-600",
-  computer: "text-cyan-600",
-  phone: "text-pink-600",
-  access_point: "text-teal-600",
-  firewall: "text-red-600",
-  unknown: "text-slate-500",
+const typeConfig: Record<
+  string,
+  {
+    bg: string
+    border: string
+    iconBg: string
+    iconColor: string
+    badgeBg: string
+    badgeText: string
+    label: string
+  }
+> = {
+  computer: {
+    bg: "bg-cyan-50/90 hover:bg-cyan-50",
+    border: "border-cyan-400/70 hover:border-cyan-500",
+    iconBg: "bg-cyan-100 text-cyan-700",
+    iconColor: "text-cyan-700",
+    badgeBg: "bg-cyan-100/70 text-cyan-800",
+    badgeText: "Computador",
+    label: "Computador",
+  },
+  switch: {
+    bg: "bg-emerald-50/90 hover:bg-emerald-50",
+    border: "border-emerald-400/70 hover:border-emerald-500",
+    iconBg: "bg-emerald-100 text-emerald-700",
+    iconColor: "text-emerald-700",
+    badgeBg: "bg-emerald-100/70 text-emerald-800",
+    badgeText: "Switch",
+    label: "Switch",
+  },
+  router: {
+    bg: "bg-blue-50/90 hover:bg-blue-50",
+    border: "border-blue-400/70 hover:border-blue-500",
+    iconBg: "bg-blue-100 text-blue-700",
+    iconColor: "text-blue-700",
+    badgeBg: "bg-blue-100/70 text-blue-800",
+    badgeText: "Roteador",
+    label: "Roteador",
+  },
+  server: {
+    bg: "bg-violet-50/90 hover:bg-violet-50",
+    border: "border-violet-400/70 hover:border-violet-500",
+    iconBg: "bg-violet-100 text-violet-700",
+    iconColor: "text-violet-700",
+    badgeBg: "bg-violet-100/70 text-violet-800",
+    badgeText: "Servidor",
+    label: "Servidor",
+  },
+  printer: {
+    bg: "bg-orange-50/90 hover:bg-orange-50",
+    border: "border-orange-400/70 hover:border-orange-500",
+    iconBg: "bg-orange-100 text-orange-700",
+    iconColor: "text-orange-700",
+    badgeBg: "bg-orange-100/70 text-orange-800",
+    badgeText: "Impressora",
+    label: "Impressora",
+  },
+  phone: {
+    bg: "bg-pink-50/90 hover:bg-pink-50",
+    border: "border-pink-400/70 hover:border-pink-500",
+    iconBg: "bg-pink-100 text-pink-700",
+    iconColor: "text-pink-700",
+    badgeBg: "bg-pink-100/70 text-pink-800",
+    badgeText: "Telefone IP",
+    label: "Telefone IP",
+  },
+  access_point: {
+    bg: "bg-teal-50/90 hover:bg-teal-50",
+    border: "border-teal-400/70 hover:border-teal-500",
+    iconBg: "bg-teal-100 text-teal-700",
+    iconColor: "text-teal-700",
+    badgeBg: "bg-teal-100/70 text-teal-800",
+    badgeText: "Access Point",
+    label: "Access Point",
+  },
+  firewall: {
+    bg: "bg-red-50/90 hover:bg-red-50",
+    border: "border-red-400/70 hover:border-red-500",
+    iconBg: "bg-red-100 text-red-700",
+    iconColor: "text-red-700",
+    badgeBg: "bg-red-100/70 text-red-800",
+    badgeText: "Firewall",
+    label: "Firewall",
+  },
+  unknown: {
+    bg: "bg-slate-50/90 hover:bg-slate-50",
+    border: "border-slate-300 hover:border-slate-400",
+    iconBg: "bg-slate-200 text-slate-600",
+    iconColor: "text-slate-600",
+    badgeBg: "bg-slate-100 text-slate-600",
+    badgeText: "Equipamento",
+    label: "Dispositivo",
+  },
 }
 
 export const ICON_MAP: Record<string, ReactNode> = {
@@ -76,9 +147,19 @@ export const ICON_MAP_LG: Record<string, ReactNode> = {
 }
 
 export const ALL_ICON_KEYS = [
-  "router", "switch", "server", "computer", "monitor",
-  "printer", "phone", "access_point", "firewall",
-  "cloud", "database", "camera", "unknown",
+  "router",
+  "switch",
+  "server",
+  "computer",
+  "monitor",
+  "printer",
+  "phone",
+  "access_point",
+  "firewall",
+  "cloud",
+  "database",
+  "camera",
+  "unknown",
 ] as const
 
 export const ICON_LABELS: Record<string, string> = {
@@ -88,7 +169,7 @@ export const ICON_LABELS: Record<string, string> = {
   computer: "Computador",
   monitor: "Monitor",
   printer: "Impressora",
-  phone: "Telefone",
+  phone: "Telefone IP",
   access_point: "Access Point",
   firewall: "Firewall",
   cloud: "Nuvem",
@@ -104,38 +185,77 @@ export interface DeviceNodeData {
   l2_only: boolean
   icon_type: string | null
   display_name: string | null
+  isHighlighted?: boolean
 }
 
 export function DeviceNode({ data, selected }: NodeProps) {
   const nodeData = data as unknown as DeviceNodeData
-  const effectiveIcon = nodeData.icon_type || nodeData.type
-  const style = typeStyles[nodeData.type] ?? typeStyles.unknown
-  const iconColor = typeIconColors[effectiveIcon] ?? typeIconColors[nodeData.type] ?? typeIconColors.unknown
+  const effectiveType = nodeData.type || "unknown"
+  const cfg = typeConfig[effectiveType] ?? typeConfig.unknown
+  const effectiveIcon = nodeData.icon_type || effectiveType
 
   return (
     <div
       className={cn(
-        "min-w-[130px] max-w-[180px] rounded-xl border-2 px-3 py-2.5 shadow-sm transition-all duration-200 sm:min-w-[150px] sm:max-w-none",
-        style,
-        selected && "ring-2 ring-blue-400 ring-offset-1 shadow-md scale-105",
+        "group relative w-[210px] rounded-xl border-2 p-3 shadow-sm backdrop-blur-sm transition-all duration-200 cursor-pointer",
+        cfg.bg,
+        cfg.border,
+        selected && "ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-105 z-20",
+        nodeData.isHighlighted && "ring-2 ring-amber-400 ring-offset-2 scale-105 shadow-md",
       )}
     >
-      <Handle type="target" position={Position.Top} className="!bg-slate-400 !w-2 !h-2" />
-      <div className="flex items-center gap-2">
-        <div className={cn("shrink-0", iconColor)}>
+      {/* Handles */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="!h-2.5 !w-2.5 !bg-slate-400 !border-2 !border-white transition-transform group-hover:scale-125"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="!h-2.5 !w-2.5 !bg-slate-400 !border-2 !border-white transition-transform group-hover:scale-125"
+      />
+
+      {/* Header: Icon + Machine Name + Online Dot */}
+      <div className="flex items-start gap-2.5">
+        <div
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-xs",
+            cfg.iconBg,
+          )}
+        >
           {ICON_MAP[effectiveIcon] ?? ICON_MAP.unknown}
         </div>
-        <span className="truncate text-sm font-semibold text-slate-800">{nodeData.label}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1">
+            <h4
+              className="truncate text-xs font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors"
+              title={nodeData.label}
+            >
+              {nodeData.label}
+            </h4>
+            <span
+              className="h-2 w-2 shrink-0 rounded-full bg-emerald-500 shadow-xs"
+              title="Dispositivo Ativo"
+            />
+          </div>
+          <p className="truncate font-mono text-[11px] text-slate-500 font-medium mt-0.5">
+            {nodeData.ip ?? (nodeData.l2_only ? "L2 Only" : "—")}
+          </p>
+        </div>
       </div>
-      <div className="mt-1 text-[10px] text-slate-500 font-medium">
-        {nodeData.ip ?? (nodeData.l2_only ? "L2 only" : "—")}
+
+      {/* Footer / Badges */}
+      <div className="mt-2.5 flex items-center justify-between gap-1 border-t border-slate-200/50 pt-2 text-[10px]">
+        <span className={cn("rounded-md px-1.5 py-0.5 font-medium text-[9px]", cfg.badgeBg)}>
+          {ICON_LABELS[effectiveType] ?? effectiveType}
+        </span>
+        {nodeData.l2_only && (
+          <Badge className="border-amber-300 bg-amber-50 text-amber-700 text-[9px] px-1.5 py-0">
+            L2
+          </Badge>
+        )}
       </div>
-      {nodeData.l2_only && (
-        <Badge className="mt-1.5 border-amber-300/60 bg-amber-50 text-amber-700 text-[9px] px-1.5 py-0">
-          L2 only
-        </Badge>
-      )}
-      <Handle type="source" position={Position.Bottom} className="!bg-slate-400 !w-2 !h-2" />
     </div>
   )
 }
