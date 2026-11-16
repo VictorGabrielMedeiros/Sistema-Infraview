@@ -45,6 +45,10 @@ npm run build
 
 # 4. Ajustar permissões e reiniciar serviços
 echo -e "${BLUE}[4/4] Reiniciando serviços...${NC}"
+usermod -aG _lldpd www-data 2>/dev/null || true
+usermod -aG lldpd www-data 2>/dev/null || true
+chmod a+rx /usr/sbin/lldpctl /usr/sbin/lldpcli /sbin/lldpctl /sbin/lldpcli 2>/dev/null || true
+
 chown -R www-data:www-data "$INSTALL_DIR"
 chmod -R 755 "$INSTALL_DIR/frontend/dist"
 chmod -R 775 "$INSTALL_DIR/backend/data"

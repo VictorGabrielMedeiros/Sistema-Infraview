@@ -42,7 +42,9 @@ apt-get install -y --no-install-recommends \
 
 # Garantir serviço LLDP ativo e permissão para www-data
 systemctl enable --now lldpd
-usermod -aG lldpd www-data || true
+usermod -aG _lldpd www-data 2>/dev/null || true
+usermod -aG lldpd www-data 2>/dev/null || true
+chmod a+rx /usr/sbin/lldpctl /usr/sbin/lldpcli /sbin/lldpctl /sbin/lldpcli 2>/dev/null || true
 
 echo -e "${BLUE}[2/7] Verificando Node.js para compilação do frontend...${NC}"
 NODE_OK=0

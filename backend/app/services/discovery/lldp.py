@@ -307,7 +307,8 @@ def scan_lldp() -> tuple[list[RawDevice], list[RawLink], str | None]:
             devices, links = _parse_lldp_json(data, iface_macs)
             logger.info("LLDP scan via %s: %d devices, %d links", cmd[0], len(devices), len(links))
             return devices, links, None
-        except FileNotFoundError:
+        except (FileNotFoundError, PermissionError) as exc:
+            logger.warning("LLDP scan execution error with %s: %s", cmd[0], exc)
             continue
         except json.JSONDecodeError as exc:
             logger.warning("LLDP JSON parse error from %s: %s", cmd[0], exc)

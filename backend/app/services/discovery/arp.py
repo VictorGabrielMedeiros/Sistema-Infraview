@@ -52,8 +52,8 @@ def scan_arp() -> tuple[list[RawDevice], str | None]:
                     )
                 )
         return entries, None
-    except FileNotFoundError:
-        return [], "Comando 'ip' não encontrado — requer Linux"
+    except (FileNotFoundError, PermissionError) as exc:
+        return [], f"Erro de permissão ou comando 'ip' não encontrado: {exc}"
     except subprocess.TimeoutExpired as exc:
         return [], str(exc)
 

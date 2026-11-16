@@ -93,7 +93,9 @@ Ative o daemon LLDP e conceda permissão de leitura ao usuário `www-data`:
 
 ```bash
 sudo systemctl enable --now lldpd
-sudo usermod -aG lldpd www-data
+sudo usermod -aG _lldpd www-data 2>/dev/null || true
+sudo usermod -aG lldpd www-data 2>/dev/null || true
+sudo chmod a+rx /usr/sbin/lldpctl /usr/sbin/lldpcli 2>/dev/null || true
 ```
 
 ### 3.2. Instalar Node.js 24 LTS (usado para compilar o frontend)
@@ -435,7 +437,7 @@ sudo systemctl reload nginx
 |---------|---------------------|---------|
 | **Descoberta retorna 0 dispositivos** | Servidor não está conectado à LAN física correta ou interface sem tráfego | Verifique `ip neigh show` no terminal. O servidor deve ter IP na faixa dos equipamentos. |
 | **LLDP vazio na descoberta** | Switches da rede não possuem LLDP ativo ou servidor está em porta isolada | Ative o LLDP nos switches (`lldp run` no Cisco/HP/Dell) e confirme `lldpctl -f json`. |
-| **Erro "lldpctl permission denied"** | Usuário `www-data` sem grupo `lldpd` | Execute: `sudo usermod -aG lldpd www-data && sudo systemctl restart infraview-api`. |
+| **Erro "lldpctl permission denied"** | Usuário `www-data` sem grupo `_lldpd` ou binário sem permissão | Execute: `sudo usermod -aG _lldpd,lldpd www-data && sudo chmod a+rx /usr/sbin/lldpctl && sudo systemctl restart infraview-api`. |
 | **API offline / Erro 502 Bad Gateway** | Serviço FastAPI parou ou falhou na inicialização | Verifique os logs: `sudo journalctl -u infraview-api -n 50 --no-pager`. |
 | **Erro de CORS no navegador** | `CORS_ORIGINS` não corresponde à URL usada | Altere `CORS_ORIGINS` no `.env` para o IP ou domínio exato acessado no navegador. |
 | **Sub-rede detectada incorreta no Ping Sweep** | Múltiplas interfaces de rede ativas no servidor | Configure `SCAN_SUBNET=192.168.X.0/24` no arquivo `.env` e reinicie a API. |
