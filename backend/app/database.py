@@ -82,7 +82,7 @@ def _migrate_add_columns() -> None:
 
 
 def init_db() -> None:
-    from app.models import device, discovery_run, link  # noqa: F401
+    from app.models import device, discovery_run, link, snapshot  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
     _migrate_add_columns()

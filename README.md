@@ -13,9 +13,14 @@ Plataforma profissional de descoberta, auditoria e mapeamento de topologia de re
   - **ARP Inspection:** mapeia endereços IP e MAC em tempo real diretamente da tabela de vizinhança.
   - **Ping Sweep Paralelo:** descobre hosts ativos de forma rápida com múltiplos threads por sub-rede CIDR.
   - **SNMPv2c Enrichment:** coleta sysDescr, sysName, vendor, modelo e tipo de dispositivo automaticamente.
-- **Topologia Interativa:**
-  - Visualização gráfica com React Flow e algoritmo de layout hierárquico Dagre.
-  - Filtros interativos por tipo (Switch, Roteador, Servidor, Firewall, AP, etc.).
+- **Topologia Interativa & Histórico de Redes:**
+  - Visualização gráfica com React Flow e algoritmo de layout hierárquico Dagre (orientação Vertical ou Horizontal).
+  - **Histórico de Redes e Snapshots:** salve e nomeie diferentes redes mapeadas (ex: "Rede Prefeitura", "Rede Câmara") sem perder topologias anteriores.
+  - Alterne instantaneamente entre a rede ao vivo e o histórico salvo pelo seletor na barra superior.
+  - Restaure qualquer rede histórica como a rede ativa no banco de dados com 1 clique.
+  - Exportação da topologia em arquivo JSON estruturado.
+  - Filtros dinâmicos com contagem em tempo real por categoria (Switch, Roteador, Servidor, Computador, Firewall, AP, etc.).
+  - Busca instantânea no canvas destacando máquinas e nós correspondentes.
   - Edição direta de nós: alteração de nome de exibição, tipo e ícone customizado.
   - Remoção de dispositivos obsoletos diretamente pelo mapa.
 - **Dashboard e Métricas:**

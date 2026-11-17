@@ -53,6 +53,7 @@ usermod -aG lldpd www-data 2>/dev/null || true
 chmod a+rx /usr/sbin/lldpctl /usr/sbin/lldpcli /sbin/lldpctl /sbin/lldpcli 2>/dev/null || true
 
 # Garantir permissões de escrita apenas onde necessário
+mkdir -p "$INSTALL_DIR/backend/data"
 chown -R www-data:www-data "$INSTALL_DIR/backend/data"
 chmod -R 775 "$INSTALL_DIR/backend/data"
 chmod -R 755 "$INSTALL_DIR"

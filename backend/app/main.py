@@ -22,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import devices, discovery, system
+from app.routers import devices, discovery, snapshots, system
 
 
 @asynccontextmanager
@@ -49,6 +49,7 @@ app.add_middleware(
 
 app.include_router(devices.router)
 app.include_router(discovery.router)
+app.include_router(snapshots.router)
 app.include_router(system.router)
 
 

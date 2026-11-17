@@ -377,7 +377,29 @@ O arquivo de configuração fica localizado em `/opt/infraview/backend/.env`:
 
 ---
 
-## 9. Rotina de Backup e Restauração
+## 9. Histórico de Redes e Snapshots de Topologia
+
+O InfraView permite armazenar históricos completos de diferentes redes escaneadas (por exemplo: "Rede Prefeitura", "Rede Câmara", "Filial Norte", etc.) sem que uma varredura sobreponha ou apague o trabalho anterior:
+
+1. **Salvar Rede Atual**:
+   - Na aba **Topologia**, clique no botão **Salvar Rede**.
+   - Defina um nome identificador (ex: `Rede Prefeitura`) e uma descrição opcional.
+   - O sistema grava os nós, conexões, portas e dados de todos os equipamentos detectados.
+
+2. **Alternar entre Redes Salvas**:
+   - Utilize o seletor **Rede:** no topo da tela de topologia para navegar instantaneamente entre a `● Rede Ao Vivo` e qualquer histórico salvo.
+   - O mapa, filtros e busca funcionam completamente em cima do histórico selecionado.
+
+3. **Restaurar como Rede Ativa**:
+   - Ao visualizar um snapshot histórico ou abrir o modal **Histórico**, clique em **Restaurar como Rede Ativa**.
+   - O sistema sincroniza o banco de dados principal com o snapshot, atualizando inventário, métricas e conexões.
+
+4. **Exportação de Topologia (JSON)**:
+   - No modal de histórico, clique no ícone de download para baixar os dados brutos da topologia em formato JSON.
+
+---
+
+## 10. Rotina de Backup e Restauração
 
 O InfraView inclui o script automatizado `backup.sh`:
 
@@ -397,7 +419,7 @@ sudo crontab -e
 
 ---
 
-## 10. Atualização do Sistema
+## 11. Atualização do Sistema
 
 Para atualizar o InfraView de forma rápida no servidor de produção, utilize o script `update.sh`:
 
@@ -431,7 +453,7 @@ sudo systemctl reload nginx
 
 ---
 
-## 11. Diagnóstico e Solução de Problemas
+## 12. Diagnóstico e Solução de Problemas
 
 | Sintoma | Causa Mais Provável | Solução |
 |---------|---------------------|---------|

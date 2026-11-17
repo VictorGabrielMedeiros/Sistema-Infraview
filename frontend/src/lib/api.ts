@@ -108,7 +108,40 @@ export interface SystemInfo {
   snmp_community_configured: boolean
 }
 
+export interface SnapshotSummary {
+  id: string
+  name: string
+  description: string | null
+  created_at: string
+  device_count: number
+  link_count: number
+}
+
+export interface SnapshotDetail extends SnapshotSummary {
+  nodes: TopologyNode[]
+  edges: TopologyEdge[]
+}
+
+export interface SnapshotCreate {
+  name: string
+  description?: string | null
+}
+
+export interface SnapshotUpdate {
+  name?: string
+  description?: string | null
+}
+
 export const fetchTopology = () => api.get<TopologyResponse>("/topology").then((r) => r.data)
+export const fetchSnapshots = () => api.get<SnapshotSummary[]>("/snapshots").then((r) => r.data)
+export const fetchSnapshot = (id: string) => api.get<SnapshotDetail>(`/snapshots/${id}`).then((r) => r.data)
+export const createSnapshot = (payload: SnapshotCreate) => api.post<SnapshotDetail>("/snapshots", payload).then((r) => r.data)
+export const updateSnapshot = (id: string, payload: SnapshotUpdate) =>
+  api.patch<SnapshotSummary>(`/snapshots/${id}`, payload).then((r) => r.data)
+export const deleteSnapshot = (id: string) =>
+  api.delete<{ status: string; message: string }>(`/snapshots/${id}`).then((r) => r.data)
+export const restoreSnapshot = (id: string) =>
+  api.post<SnapshotDetail>(`/snapshots/${id}/restore`).then((r) => r.data)
 export const fetchDevice = (id: string) => api.get<DeviceDetail>(`/devices/${id}`).then((r) => r.data)
 export const updateDevice = (id: string, payload: DeviceUpdate) =>
   api.patch<DeviceDetail>(`/devices/${id}`, payload).then((r) => r.data)
