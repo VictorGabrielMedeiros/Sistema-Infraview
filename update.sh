@@ -28,7 +28,8 @@ git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
 
 # 1. Puxar as novidades do Git
 echo -e "${BLUE}[1/4] Baixando atualizações do repositório...${NC}"
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 
 # 2. Atualizar Backend
 echo -e "${BLUE}[2/4] Atualizando dependências do Backend...${NC}"
