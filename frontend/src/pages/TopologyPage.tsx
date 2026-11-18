@@ -66,6 +66,7 @@ import {
   type TopologyNode,
   type SnapshotSummary,
 } from "@/lib/api"
+import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
 const nodeTypes = { device: DeviceNode }
@@ -153,6 +154,9 @@ function toFlowNodes(apiNodes: TopologyNode[], searchFilter: string): Node[] {
 
 export function TopologyPage() {
   const queryClient = useQueryClient()
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>("live")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>("all")
@@ -316,14 +320,14 @@ export function TopologyPage() {
       type: "smoothstep",
       animated: true,
       style: { stroke: "#3b82f6", strokeWidth: 2 },
-      labelStyle: { fontSize: 10, fill: "#475569", fontWeight: 600 },
-      labelBgStyle: { fill: "#ffffff", fillOpacity: 0.95 },
+      labelStyle: { fontSize: 10, fill: isDark ? "#94a3b8" : "#475569", fontWeight: 600 },
+      labelBgStyle: { fill: isDark ? "#0f172a" : "#ffffff", fillOpacity: 0.95 },
       labelBgPadding: [6, 4] as [number, number],
       labelBgBorderRadius: 6,
     }))
     setNodes(layoutElements(flowNodes, flowEdges, direction))
     setEdges(flowEdges)
-  }, [filtered, searchQuery, direction, setNodes, setEdges])
+  }, [filtered, searchQuery, direction, isDark, setNodes, setEdges])
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedId(node.id)
@@ -390,7 +394,7 @@ export function TopologyPage() {
       className={cn(
         "flex flex-col gap-3 transition-all duration-200",
         isFullscreen
-          ? "fixed inset-0 z-50 bg-slate-100 p-4"
+          ? "fixed inset-0 z-50 bg-slate-100 dark:bg-slate-950 p-4"
           : "h-[calc(100dvh-4.5rem)] sm:h-[calc(100dvh-3rem)] sm:gap-4 lg:h-[calc(100vh-3rem)]",
       )}
     >
@@ -404,12 +408,12 @@ export function TopologyPage() {
       >
         <div className="flex flex-wrap items-center gap-2">
           {/* Seletor de Rede / Histórico */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-xs">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Rede:</span>
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rede:</span>
             <select
               value={selectedSnapshotId}
               onChange={(e) => setSelectedSnapshotId(e.target.value)}
-              className="h-8 rounded-lg border-0 bg-transparent pr-2 text-xs font-semibold text-slate-800 outline-none cursor-pointer"
+              className="h-8 rounded-lg border-0 bg-transparent pr-2 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-pointer"
             >
               <option value="live">● Rede Ao Vivo (Ativa)</option>
               {snapshotsQuery.data && snapshotsQuery.data.length > 0 && (
@@ -459,17 +463,17 @@ export function TopologyPage() {
 
       {/* Banner de Visualização Histórica */}
       {selectedSnapshotId !== "live" && activeSnapshotMeta && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2 text-xs text-amber-900 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2 text-xs text-amber-900 shadow-xs dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-200/80 text-amber-800">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-200/80 text-amber-800 dark:bg-amber-900/80 dark:text-amber-300">
               <FolderGit2 className="h-3.5 w-3.5" />
             </div>
             <div>
               Visualizando histórico: <strong>{activeSnapshotMeta.name}</strong>
               {activeSnapshotMeta.description && (
-                <span className="ml-1 text-amber-700 italic">“{activeSnapshotMeta.description}”</span>
+                <span className="ml-1 text-amber-700 dark:text-amber-400 italic">“{activeSnapshotMeta.description}”</span>
               )}
-              <span className="ml-2 text-slate-500">
+              <span className="ml-2 text-slate-500 dark:text-slate-400">
                 (Salvo em {new Date(activeSnapshotMeta.created_at).toLocaleString("pt-BR")})
               </span>
             </div>
@@ -489,7 +493,7 @@ export function TopologyPage() {
                 }
               }}
               disabled={restoreSnapshotMutation.isPending}
-              className="h-7 text-xs border-amber-300 bg-white hover:bg-amber-100 text-amber-900 font-medium"
+              className="h-7 text-xs border-amber-300 bg-white hover:bg-amber-100 text-amber-900 font-medium dark:border-amber-800 dark:bg-slate-900 dark:text-amber-200 dark:hover:bg-amber-950/50"
             >
               {restoreSnapshotMutation.isPending ? (
                 <Loader2 className="h-3 w-3 animate-spin mr-1" />
@@ -502,7 +506,7 @@ export function TopologyPage() {
               size="sm"
               variant="ghost"
               onClick={() => setSelectedSnapshotId("live")}
-              className="h-7 text-xs hover:bg-amber-200 text-amber-900"
+              className="h-7 text-xs hover:bg-amber-200 text-amber-900 dark:text-amber-300 dark:hover:bg-amber-950/50"
             >
               Voltar para Ao Vivo
             </Button>
@@ -510,22 +514,22 @@ export function TopologyPage() {
         </div>
       )}
 
-      <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+      <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
         {isLoading ? (
-          <div className="flex h-full items-center justify-center text-slate-500">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin text-blue-600" /> Carregando mapa de rede...
+          <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">
+            <Loader2 className="mr-2 h-5 w-5 animate-spin text-blue-600 dark:text-blue-400" /> Carregando mapa de rede...
           </div>
         ) : isEmpty ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-slate-500">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-xs">
+          <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-slate-500 dark:text-slate-400">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-xs dark:bg-blue-950/50 dark:text-blue-400">
               <Filter className="h-8 w-8" />
             </div>
-            <p className="text-base font-semibold text-slate-800 sm:text-lg">
+            <p className="text-base font-semibold text-slate-800 dark:text-slate-200 sm:text-lg">
               {selectedSnapshotId === "live"
                 ? "Nenhum dispositivo mapeado ainda"
                 : "Topologia salva sem dispositivos registrados"}
             </p>
-            <p className="max-w-md text-sm text-slate-500">
+            <p className="max-w-md text-sm text-slate-500 dark:text-slate-400">
               {selectedSnapshotId === "live"
                 ? "Clique em 'Executar descoberta' para escanear a LAN via NetBIOS, LLDP, ARP, Ping e SNMP."
                 : "Selecione outra rede salva ou volte para a visualização ao vivo."}
@@ -550,10 +554,12 @@ export function TopologyPage() {
             minZoom={0.15}
             maxZoom={2}
           >
-            <Background gap={22} color="#cbd5e1" />
-            <Controls className="!bottom-3 !left-3 sm:!bottom-4 sm:!left-4 shadow-md rounded-xl overflow-hidden" />
+            <Background gap={22} color={isDark ? "#1e293b" : "#cbd5e1"} />
+            <Controls className="!bottom-3 !left-3 sm:!bottom-4 sm:!left-4 shadow-md rounded-xl overflow-hidden dark:!bg-slate-900 dark:!border-slate-800 dark:!fill-slate-200" />
             <MiniMap
-              className="!hidden sm:!block !rounded-xl !overflow-hidden !border-slate-200 !shadow-md"
+              className="!hidden sm:!block !rounded-xl !overflow-hidden !border-slate-200 !shadow-md dark:!border-slate-800 dark:!bg-slate-900"
+              maskColor={isDark ? "rgba(15, 23, 42, 0.75)" : "rgba(240, 240, 240, 0.6)"}
+              nodeColor={isDark ? "#3b82f6" : "#64748b"}
               nodeStrokeWidth={3}
               zoomable
               pannable
@@ -561,19 +567,19 @@ export function TopologyPage() {
 
             {/* Top Toolbar: Search + Direction Toggle + Fullscreen */}
             <Panel position="top-right" className="m-3 flex items-center gap-2">
-              <div className="relative flex items-center rounded-xl border border-slate-200 bg-white/95 px-2.5 py-1.5 shadow-sm backdrop-blur-sm">
-                <Search className="h-3.5 w-3.5 text-slate-400 mr-1.5" />
+              <div className="relative flex items-center rounded-xl border border-slate-200 bg-white/95 px-2.5 py-1.5 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95">
+                <Search className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 mr-1.5" />
                 <input
                   type="text"
                   placeholder="Buscar máquina (ex: VICTOR-TI, IP)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-44 sm:w-56 text-xs text-slate-800 placeholder:text-slate-400 outline-none bg-transparent"
+                  className="w-44 sm:w-56 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none bg-transparent"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="p-0.5 text-slate-400 hover:text-slate-600"
+                    className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -584,7 +590,7 @@ export function TopologyPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setDirection((d) => (d === "TB" ? "LR" : "TB"))}
-                className="h-9 gap-1.5 bg-white/95 shadow-sm text-xs backdrop-blur-sm"
+                className="h-9 gap-1.5 bg-white/95 dark:bg-slate-900/95 shadow-sm text-xs backdrop-blur-sm"
                 title={`Orientação atual: ${direction === "TB" ? "Vertical" : "Horizontal"}`}
               >
                 {direction === "TB" ? (
@@ -604,7 +610,7 @@ export function TopologyPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsFullscreen((f) => !f)}
-                className="h-9 w-9 p-0 bg-white/95 shadow-sm backdrop-blur-sm text-slate-600"
+                className="h-9 w-9 p-0 bg-white/95 dark:bg-slate-900/95 shadow-sm backdrop-blur-sm text-slate-600 dark:text-slate-300"
                 title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
               >
                 {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -614,7 +620,7 @@ export function TopologyPage() {
             {/* Category Filter Pills on Top Left */}
             <Panel
               position="top-left"
-              className="m-3 max-w-[calc(100%-8rem)] overflow-x-auto rounded-xl border border-slate-200/90 bg-white/95 p-1.5 shadow-md backdrop-blur-sm sm:max-w-xl"
+              className="m-3 max-w-[calc(100%-8rem)] overflow-x-auto rounded-xl border border-slate-200/90 bg-white/95 p-1.5 shadow-md backdrop-blur-sm sm:max-w-xl dark:border-slate-800 dark:bg-slate-900/95"
             >
               <div className="flex items-center gap-1">
                 <Filter className="hidden h-3.5 w-3.5 shrink-0 text-slate-400 sm:block ml-1" />
@@ -629,8 +635,8 @@ export function TopologyPage() {
                       className={cn(
                         "flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all duration-150",
                         typeFilter === t
-                          ? "bg-slate-900 text-white shadow-xs"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                          ? "bg-slate-900 text-white dark:bg-blue-600 dark:text-white shadow-xs"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200",
                       )}
                     >
                       <span>{TYPE_FILTER_LABELS[t] ?? t}</span>
@@ -638,8 +644,8 @@ export function TopologyPage() {
                         className={cn(
                           "rounded-full px-1.5 py-0.2 text-[10px]",
                           typeFilter === t
-                            ? "bg-slate-700 text-white"
-                            : "bg-slate-200 text-slate-700",
+                            ? "bg-slate-700 dark:bg-blue-700 text-white"
+                            : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300",
                         )}
                       >
                         {count}
@@ -666,30 +672,30 @@ export function TopologyPage() {
 
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-xs font-semibold text-slate-700">Nome da Rede / Identificador *</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Nome da Rede / Identificador *</label>
               <input
                 type="text"
                 value={snapshotName}
                 onChange={(e) => setSnapshotName(e.target.value)}
                 placeholder="Ex: Rede Prefeitura, Rede Câmara, Matriz..."
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700">Descrição / Observações (opcional)</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Descrição / Observações (opcional)</label>
               <textarea
                 value={snapshotDescription}
                 onChange={(e) => setSnapshotDescription(e.target.value)}
                 placeholder="Ex: Prédio central, switch core no rack principal, VLAN 10 e 20"
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
 
-            <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600 border border-slate-200">
-              <span className="font-semibold text-slate-700">Resumo da captura: </span>
+            <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-600 border border-slate-200 dark:bg-slate-950/60 dark:border-slate-800 dark:text-slate-400">
+              <span className="font-semibold text-slate-700 dark:text-slate-300">Resumo da captura: </span>
               {currentData.nodes.length} equipamentos e {currentData.edges.length} conexões serão gravados
               neste snapshot.
             </div>
@@ -732,10 +738,10 @@ export function TopologyPage() {
 
           <div className="flex-1 overflow-y-auto space-y-3 py-2 pr-1">
             {!snapshotsQuery.data || snapshotsQuery.data.length === 0 ? (
-              <div className="py-12 text-center text-sm text-slate-500">
-                <FolderGit2 className="mx-auto h-10 w-10 text-slate-300 mb-2" />
-                <p className="font-medium text-slate-700">Nenhuma rede salva no histórico ainda</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
+                <FolderGit2 className="mx-auto h-10 w-10 text-slate-300 dark:text-slate-700 mb-2" />
+                <p className="font-semibold text-slate-700 dark:text-slate-300">Nenhuma rede salva no histórico ainda</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                   Clique em <strong>Salvar Rede</strong> na barra superior para registrar a topologia atual.
                 </p>
               </div>
@@ -748,26 +754,26 @@ export function TopologyPage() {
                     className={cn(
                       "flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border p-3.5 transition-all",
                       isCurrent
-                        ? "border-blue-400 bg-blue-50/50 shadow-xs"
-                        : "border-slate-200 bg-white hover:border-slate-300",
+                        ? "border-blue-400 bg-blue-50/50 shadow-xs dark:border-blue-500/50 dark:bg-blue-950/30"
+                        : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-slate-700",
                     )}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-slate-900">{snap.name}</span>
+                        <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">{snap.name}</span>
                         {isCurrent && (
                           <Badge className="bg-blue-600 text-[10px] text-white">Visualizando</Badge>
                         )}
                       </div>
                       {snap.description && (
-                        <p className="text-xs text-slate-600 line-clamp-1">{snap.description}</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">{snap.description}</p>
                       )}
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
                         <span>{new Date(snap.created_at).toLocaleString("pt-BR")}</span>
                         <span>•</span>
-                        <span className="font-medium text-slate-600">{snap.device_count} equipamentos</span>
+                        <span className="font-medium text-slate-600 dark:text-slate-300">{snap.device_count} equipamentos</span>
                         <span>•</span>
-                        <span className="font-medium text-slate-600">{snap.link_count} conexões</span>
+                        <span className="font-medium text-slate-600 dark:text-slate-300">{snap.link_count} conexões</span>
                       </div>
                     </div>
 
@@ -787,7 +793,7 @@ export function TopologyPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 text-xs gap-1 border-amber-300 hover:bg-amber-50 text-amber-900"
+                        className="h-8 text-xs gap-1 border-amber-300 hover:bg-amber-50 text-amber-900 dark:border-amber-800/80 dark:text-amber-300 dark:hover:bg-amber-950/50"
                         title="Tornar esta rede ativa no sistema (inventário, métricas e topologia)"
                         onClick={() => {
                           if (
@@ -806,7 +812,7 @@ export function TopologyPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600"
+                        className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
                         title="Exportar dados da topologia em JSON"
                         onClick={() => exportSnapshotJson(snap)}
                       >
@@ -816,7 +822,7 @@ export function TopologyPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                         title="Excluir do histórico"
                         onClick={() => {
                           if (confirm(`Excluir o snapshot "${snap.name}" do histórico?`)) {
@@ -896,24 +902,24 @@ export function TopologyPage() {
             <div className="mt-6 space-y-6">
               {isEditing ? (
                 /* Mode Edit */
-                <div className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+                <div className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
                   <div>
-                    <label className="text-xs font-medium text-slate-600">Nome de Exibição</label>
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Nome de Exibição</label>
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Ex: Switch Core Andar 1"
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-600">Tipo de Equipamento</label>
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Tipo de Equipamento</label>
                     <select
                       value={editType}
                       onChange={(e) => setEditType(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500"
+                      className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     >
                       {TYPE_FILTERS.filter((t) => t !== "all").map((t) => (
                         <option key={t} value={t}>
@@ -924,16 +930,16 @@ export function TopologyPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-600">Ícone Personalizado</label>
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Ícone Personalizado</label>
                     <div className="mt-2 grid grid-cols-4 gap-2">
                       <button
                         type="button"
                         onClick={() => setEditIcon(null)}
                         className={cn(
-                          "flex flex-col items-center gap-1 rounded-lg border p-2 text-[10px] transition-all",
+                          "flex flex-col items-center gap-1 rounded-xl border p-2 text-[10px] transition-all",
                           editIcon === null
-                            ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/30"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                            ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/30 dark:border-blue-500 dark:bg-blue-950/60 dark:text-blue-300"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:border-slate-700",
                         )}
                       >
                         <span className="text-xs font-bold">Auto</span>
@@ -947,10 +953,10 @@ export function TopologyPage() {
                             type="button"
                             onClick={() => setEditIcon(key)}
                             className={cn(
-                              "flex flex-col items-center gap-1 rounded-lg border p-2 text-[10px] transition-all",
+                              "flex flex-col items-center gap-1 rounded-xl border p-2 text-[10px] transition-all",
                               isSel
-                                ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/30"
-                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                                ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-500/30 dark:border-blue-500 dark:bg-blue-950/60 dark:text-blue-300"
+                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:border-slate-700",
                             )}
                           >
                             <span className="flex h-5 w-5 items-center justify-center">{ICON_MAP_LG[key]}</span>
@@ -984,7 +990,7 @@ export function TopologyPage() {
 
               {/* Badges */}
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50 border-slate-200">
+                <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
                   {TYPE_FILTER_LABELS[deviceQuery.data.device_type] ?? deviceQuery.data.device_type}
                 </Badge>
                 {deviceQuery.data.is_active ? (
@@ -993,24 +999,24 @@ export function TopologyPage() {
                   <Badge variant="secondary">Offline</Badge>
                 )}
                 {deviceQuery.data.connected_ports.length > 0 && (
-                  <Badge variant="outline" className="text-blue-700 bg-blue-50 border-blue-200">
+                  <Badge variant="outline" className="text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-950/40 dark:border-blue-800">
                     {deviceQuery.data.connected_ports.length} portas ativas
                   </Badge>
                 )}
               </div>
 
               {/* Data Rows */}
-              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white">
+              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900/60">
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Endereço IP</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Endereço IP</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-slate-800">
+                    <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
                       {deviceQuery.data.ip_address ?? "— (L2 apenas)"}
                     </span>
                     {deviceQuery.data.ip_address && (
                       <button
                         onClick={() => copyToClipboard(deviceQuery.data.ip_address!, "IP")}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Copiar IP"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -1020,15 +1026,15 @@ export function TopologyPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Endereço MAC</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Endereço MAC</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-slate-800">
+                    <span className="font-mono text-xs text-slate-800 dark:text-slate-200">
                       {deviceQuery.data.mac_address ?? "—"}
                     </span>
                     {deviceQuery.data.mac_address && (
                       <button
                         onClick={() => copyToClipboard(deviceQuery.data.mac_address!, "MAC")}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Copiar MAC"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -1038,29 +1044,29 @@ export function TopologyPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Hostname / Máquina</span>
-                  <span className="font-medium text-slate-800 text-xs">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Hostname / Máquina</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-xs">
                     {deviceQuery.data.hostname ?? "—"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Fabricante (Vendor)</span>
-                  <span className="text-slate-800 text-xs">{deviceQuery.data.vendor ?? "—"}</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fabricante (Vendor)</span>
+                  <span className="text-slate-800 dark:text-slate-200 text-xs">{deviceQuery.data.vendor ?? "—"}</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Modelo</span>
-                  <span className="text-slate-800 text-xs">{deviceQuery.data.model ?? "—"}</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Modelo</span>
+                  <span className="text-slate-800 dark:text-slate-200 text-xs">{deviceQuery.data.model ?? "—"}</span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Fontes de Descoberta</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fontes de Descoberta</span>
                   <div className="flex flex-wrap gap-1">
                     {deviceQuery.data.sources.map((s) => (
                       <span
                         key={s}
-                        className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 uppercase tracking-wider"
+                        className="rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider"
                       >
                         {s}
                       </span>
@@ -1069,8 +1075,8 @@ export function TopologyPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Visto por último</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Visto por último</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {new Date(deviceQuery.data.last_seen).toLocaleString("pt-BR")}
                   </span>
                 </div>
@@ -1079,14 +1085,14 @@ export function TopologyPage() {
               {/* Connected Ports */}
               {deviceQuery.data.connected_ports.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                     Portas com Conexão Mapeada
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {deviceQuery.data.connected_ports.map((port) => (
                       <span
                         key={port}
-                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono font-medium text-slate-700"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
                       >
                         {port}
                       </span>
@@ -1100,27 +1106,27 @@ export function TopologyPage() {
           {/* Sheet Body for Snapshot Device */}
           {selectedSnapshotId !== "live" && selectedNodeFromSnapshot && (
             <div className="mt-6 space-y-6">
-              <div className="rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 border border-amber-200">
+              <div className="rounded-xl bg-amber-50 p-2.5 text-xs text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50">
                 Visualizando equipamento gravado no histórico de topologia.
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50 border-slate-200">
+                <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
                   {TYPE_FILTER_LABELS[selectedNodeFromSnapshot.type] ?? selectedNodeFromSnapshot.type}
                 </Badge>
               </div>
 
-              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white">
+              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900/60">
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Endereço IP</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Endereço IP</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-slate-800">
+                    <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
                       {selectedNodeFromSnapshot.ip ?? "— (L2 apenas)"}
                     </span>
                     {selectedNodeFromSnapshot.ip && (
                       <button
                         onClick={() => copyToClipboard(selectedNodeFromSnapshot.ip!, "IP")}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Copiar IP"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -1130,15 +1136,15 @@ export function TopologyPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Endereço MAC</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Endereço MAC</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-slate-800">
+                    <span className="font-mono text-xs text-slate-800 dark:text-slate-200">
                       {selectedNodeFromSnapshot.mac ?? "—"}
                     </span>
                     {selectedNodeFromSnapshot.mac && (
                       <button
                         onClick={() => copyToClipboard(selectedNodeFromSnapshot.mac!, "MAC")}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                         title="Copiar MAC"
                       >
                         <Copy className="h-3.5 w-3.5" />
@@ -1148,26 +1154,26 @@ export function TopologyPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Hostname / Máquina</span>
-                  <span className="font-medium text-slate-800 text-xs">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Hostname / Máquina</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-xs">
                     {selectedNodeFromSnapshot.hostname ?? "—"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Fabricante (Vendor)</span>
-                  <span className="text-slate-800 text-xs">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fabricante (Vendor)</span>
+                  <span className="text-slate-800 dark:text-slate-200 text-xs">
                     {selectedNodeFromSnapshot.vendor ?? "—"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between p-3 text-sm">
-                  <span className="text-xs font-medium text-slate-500">Fontes</span>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fontes</span>
                   <div className="flex flex-wrap gap-1">
                     {(selectedNodeFromSnapshot.sources || []).map((s) => (
                       <span
                         key={s}
-                        className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 uppercase tracking-wider"
+                        className="rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider"
                       >
                         {s}
                       </span>

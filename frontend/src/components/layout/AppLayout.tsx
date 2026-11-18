@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { AppHeader } from "./AppHeader"
 import { Sidebar } from "./Sidebar"
+import { useTheme } from "@/lib/theme"
 
 const STORAGE_KEY = "infraview-sidebar-collapsed"
 
@@ -23,6 +24,7 @@ function readCollapsed(): boolean {
 }
 
 export function AppLayout() {
+  const { resolvedTheme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const location = useLocation()
@@ -42,7 +44,7 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="flex min-h-screen min-h-[100dvh] bg-transparent">
+    <div className="flex min-h-screen min-h-[100dvh] bg-transparent text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Sidebar
         mobileOpen={mobileOpen}
         onMobileClose={closeMobile}
@@ -54,11 +56,17 @@ export function AppLayout() {
           onMenuOpen={() => setMobileOpen(true)}
           title={PAGE_TITLES[location.pathname] ?? "InfraView"}
         />
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-auto p-3.5 sm:p-6">
           <Outlet />
         </main>
       </div>
-      <Toaster position="top-center" richColors closeButton className="sm:top-right" />
+      <Toaster
+        theme={resolvedTheme}
+        position="top-center"
+        richColors
+        closeButton
+        className="sm:top-right"
+      />
     </div>
   )
 }

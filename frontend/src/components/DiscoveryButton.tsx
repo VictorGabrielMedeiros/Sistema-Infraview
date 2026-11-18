@@ -13,7 +13,7 @@ export function DiscoveryButton({ className }: { className?: string }) {
     onSuccess: (data) => {
       queryClient.invalidateQueries()
       if (data.status === "completed") {
-        toast.success(`Descoberta concluída: ${data.devices_found} devices, ${data.links_found} links`)
+        toast.success(`Descoberta concluída: ${data.devices_found} dispositivos, ${data.links_found} conexões`)
         if (data.error_message) toast.warning(data.error_message)
       } else {
         toast.error(data.error_message ?? "Descoberta falhou")
@@ -30,16 +30,19 @@ export function DiscoveryButton({ className }: { className?: string }) {
 
   return (
     <Button
-      className={cn("w-full sm:w-auto", className)}
+      className={cn(
+        "w-full sm:w-auto gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20 active:scale-98 font-semibold",
+        className
+      )}
       onClick={() => mutation.mutate()}
       disabled={mutation.isPending}
     >
       {mutation.isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin text-white" />
       ) : (
-        <Radar className="h-4 w-4" />
+        <Radar className="h-4 w-4 text-cyan-200" />
       )}
-      Executar descoberta
+      <span>Executar descoberta</span>
     </Button>
   )
 }

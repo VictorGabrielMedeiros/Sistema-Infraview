@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { AppLayout } from "@/components/layout/AppLayout"
+import { ThemeProvider } from "@/lib/theme"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { DevicesPage } from "@/pages/DevicesPage"
 import { DiscoveryPage } from "@/pages/DiscoveryPage"
@@ -13,20 +14,22 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="topology" element={<TopologyPage />} />
-            <Route path="devices" element={<DevicesPage />} />
-            <Route path="discovery" element={<DiscoveryPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="topology" element={<TopologyPage />} />
+              <Route path="devices" element={<DevicesPage />} />
+              <Route path="discovery" element={<DiscoveryPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }
 

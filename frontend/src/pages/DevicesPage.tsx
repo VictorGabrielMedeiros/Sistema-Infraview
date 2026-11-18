@@ -10,15 +10,15 @@ import { Card } from "@/components/ui/card"
 import { exportDevicesCsv, fetchDevices, clearDevices, deleteDevice } from "@/lib/api"
 
 const TYPE_BADGE: Record<string, string> = {
-  switch: "bg-emerald-50 text-emerald-700",
-  router: "bg-blue-50 text-blue-700",
-  printer: "bg-orange-50 text-orange-700",
-  server: "bg-violet-50 text-violet-700",
-  computer: "bg-cyan-50 text-cyan-700",
-  phone: "bg-pink-50 text-pink-700",
-  access_point: "bg-teal-50 text-teal-700",
-  firewall: "bg-red-50 text-red-700",
-  unknown: "bg-slate-100 text-slate-600",
+  switch: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/50",
+  router: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/50",
+  printer: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800/50",
+  server: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/60 dark:text-violet-300 dark:border-violet-800/50",
+  computer: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/50",
+  phone: "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/60 dark:text-pink-300 dark:border-pink-800/50",
+  access_point: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800/50",
+  firewall: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/50",
+  unknown: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800/70 dark:text-slate-400 dark:border-slate-700/50",
 }
 
 export function DevicesPage() {
@@ -72,8 +72,8 @@ export function DevicesPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageHeader
-        title="Inventário"
-        description={`${data?.total ?? 0} equipamentos registrados`}
+        title="Inventário de Equipamentos"
+        description={`${data?.total ?? 0} equipamentos detectados na rede local`}
       >
         <Button
           variant="destructive"
@@ -101,10 +101,10 @@ export function DevicesPage() {
           }}
         >
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <input
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Buscar hostname, nome, IP ou MAC..."
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+              placeholder="Buscar por hostname, máquina (ex: VICTOR-TI), IP ou MAC..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -121,7 +121,7 @@ export function DevicesPage() {
                 setSearchInput("")
                 setPage(1)
               }}
-              className="gap-1 text-slate-500"
+              className="gap-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
             >
               <X className="h-4 w-4" /> Limpar filtro
             </Button>
@@ -132,7 +132,7 @@ export function DevicesPage() {
       <Card className="overflow-hidden">
         <ResponsiveTable>
           <table className="min-w-[640px] w-full text-sm">
-            <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-slate-200 bg-slate-50/80 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-950/70 dark:text-slate-400">
               <tr>
                 <th className="px-3 py-3 sm:px-4">Dispositivo</th>
                 <th className="px-3 py-3 sm:px-4">IP</th>
@@ -147,14 +147,14 @@ export function DevicesPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400 dark:text-slate-500">
                     Carregando dispositivos...
                   </td>
                 </tr>
               ) : data?.items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
-                    Nenhum dispositivo registrado.
+                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400 dark:text-slate-500">
+                    Nenhum dispositivo encontrado.
                   </td>
                 </tr>
               ) : (
@@ -163,46 +163,54 @@ export function DevicesPage() {
                   const subName = d.display_name && d.hostname && d.display_name !== d.hostname ? d.hostname : null
 
                   return (
-                    <tr key={d.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={d.id}
+                      className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-850/50"
+                    >
                       <td className="px-3 py-3 sm:px-4">
-                        <div className="font-medium text-slate-900">{mainName}</div>
-                        {subName && <div className="text-xs text-slate-400">{subName}</div>}
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">{mainName}</div>
+                        {subName && (
+                          <div className="text-xs text-slate-400 dark:text-slate-500 font-mono">{subName}</div>
+                        )}
                       </td>
-                      <td className="px-3 py-3 font-mono text-xs sm:px-4 text-slate-700">
+                      <td className="px-3 py-3 font-mono text-xs sm:px-4 text-slate-700 dark:text-slate-300">
                         {d.ip_address ?? "—"}
                       </td>
-                      <td className="hidden px-3 py-3 font-mono text-xs text-slate-500 sm:table-cell sm:px-4">
+                      <td className="hidden px-3 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 sm:table-cell sm:px-4">
                         {d.mac_address ?? "—"}
                       </td>
                       <td className="px-3 py-3 sm:px-4">
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs capitalize ${
+                          className={`rounded-lg border px-2 py-0.5 text-xs font-medium capitalize ${
                             TYPE_BADGE[d.device_type] ?? TYPE_BADGE.unknown
                           }`}
                         >
                           {d.device_type}
                         </span>
                       </td>
-                      <td className="hidden px-3 py-3 text-slate-600 md:table-cell md:px-4">
+                      <td className="hidden px-3 py-3 text-slate-600 dark:text-slate-400 md:table-cell md:px-4">
                         {d.vendor ?? "—"}
                       </td>
                       <td className="hidden px-3 py-3 lg:table-cell lg:px-4">
                         <div className="flex flex-wrap gap-1">
                           {d.sources.map((s) => (
-                            <Badge key={s} className="text-[10px] uppercase">
+                            <Badge
+                              key={s}
+                              className="text-[10px] uppercase font-mono px-1.5 py-0.2"
+                            >
                               {s}
                             </Badge>
                           ))}
                         </div>
                       </td>
-                      <td className="hidden px-3 py-3 text-slate-500 sm:table-cell sm:px-4">
+                      <td className="hidden px-3 py-3 text-xs text-slate-500 dark:text-slate-400 sm:table-cell sm:px-4">
                         {new Date(d.last_seen).toLocaleDateString("pt-BR")}
                       </td>
                       <td className="px-3 py-3 text-right sm:px-4">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-slate-400 hover:text-red-600"
+                          className="h-8 w-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                           title="Remover dispositivo"
                           onClick={() => {
                             if (confirm(`Remover "${mainName}"?`)) {
@@ -233,7 +241,7 @@ export function DevicesPage() {
           >
             Anterior
           </Button>
-          <span className="text-sm text-slate-500">
+          <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
             Página {data.page} de {data.pages}
           </span>
           <Button

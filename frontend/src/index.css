@@ -1,10 +1,41 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
-  background-image: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0%, rgba(233, 226, 251, 0.28) 90%);
+  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-200;
+  background-image: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.45) 0%, rgba(233, 226, 251, 0.3) 90%);
+  min-height: 100vh;
+}
+
+html.dark body {
+  @apply bg-slate-950 text-slate-100;
+  background-image: radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.18) 0%, rgba(15, 23, 42, 0.98) 55%, rgba(2, 6, 23, 1) 100%);
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Scrollbar refinada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
 }

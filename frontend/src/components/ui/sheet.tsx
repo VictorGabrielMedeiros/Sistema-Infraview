@@ -21,16 +21,18 @@ function SheetContent({
 }: React.ComponentPropsWithoutRef<typeof Dialog.Content>) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
+      <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity" />
       <Dialog.Content
         className={cn(
-          "fixed inset-y-0 right-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-white p-4 shadow-lg sm:p-6",
+          "fixed inset-y-0 right-0 z-50 h-full w-full max-w-md border-l p-4 sm:p-6 shadow-2xl transition-all",
+          "border-slate-200 bg-white text-slate-900",
+          "dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100",
           className
         )}
         {...props}
       >
         {children}
-        <Dialog.Close className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100">
+        <Dialog.Close className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 opacity-70 transition-opacity hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-100">
           <X className="h-4 w-4" />
         </Dialog.Close>
       </Dialog.Content>
@@ -39,11 +41,11 @@ function SheetContent({
 }
 
 function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex flex-col space-y-2 pb-4", className)} {...props} />
+  return <div className={cn("flex flex-col space-y-2 pb-4 border-b border-slate-100 dark:border-slate-800", className)} {...props} />
 }
 
 function SheetTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof Dialog.Title>) {
-  return <Dialog.Title className={cn("text-lg font-semibold", className)} {...props} />
+  return <Dialog.Title className={cn("text-lg font-bold text-slate-900 dark:text-slate-100", className)} {...props} />
 }
 
 export { Sheet, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetTitle }
