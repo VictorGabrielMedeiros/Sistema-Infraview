@@ -72,7 +72,7 @@ def get_device(device_id: str, db: Session = Depends(get_db)):
 VALID_ICON_TYPES = {
     "router", "switch", "server", "computer", "printer",
     "phone", "access_point", "firewall", "monitor", "cloud",
-    "database", "camera", "unknown",
+    "database", "camera", "tv", "unknown",
 }
 
 
@@ -94,7 +94,13 @@ def update_device(
             raise HTTPException(status_code=422, detail=f"Icon inválido: {payload.icon_type}")
         device.icon_type = payload.icon_type or None
 
-    if payload.device_type is not None:
+    if payload.restore_auto_type:
+        device.manual_device_type = None
+        device.device_type = device.auto_device_type or DeviceType.unknown
+    elif payload.device_type is not None:
+        if device.auto_device_type is None:
+            device.auto_device_type = device.device_type
+        device.manual_device_type = payload.device_type
         device.device_type = payload.device_type
 
     db.commit()
@@ -123,6 +129,8 @@ def get_topology(db: Session = Depends(get_db)):
             id=d.id,
             label=d.display_name or d.hostname or d.ip_address or d.mac_address or "unknown",
             type=d.device_type.value,
+            auto_type=(d.auto_device_type or d.device_type).value,
+            is_manual_type=d.manual_device_type is not None,
             ip=d.ip_address,
             mac=d.mac_address,
             hostname=d.hostname,

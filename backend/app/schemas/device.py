@@ -23,6 +23,8 @@ class DeviceRead(DeviceBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
+    auto_device_type: DeviceType | None = None
+    manual_device_type: DeviceType | None = None
     first_seen: datetime
     last_seen: datetime
     is_active: bool
@@ -36,6 +38,7 @@ class DeviceUpdate(BaseModel):
     display_name: str | None = None
     icon_type: str | None = None
     device_type: DeviceType | None = None
+    restore_auto_type: bool = False
 
 
 class LinkRead(BaseModel):
@@ -54,6 +57,8 @@ class TopologyNode(BaseModel):
     id: str
     label: str
     type: str
+    auto_type: str | None = None
+    is_manual_type: bool = False
     ip: str | None = None
     mac: str | None = None
     hostname: str | None = None

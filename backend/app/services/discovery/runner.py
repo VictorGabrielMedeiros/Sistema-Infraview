@@ -34,12 +34,16 @@ def _upsert_device(db: Session, correlated: CorrelatedDevice) -> Device:
     elif correlated.ip_address:
         device = db.query(Device).filter(Device.ip_address == correlated.ip_address).first()
 
+    discovered_type = _to_device_type(correlated.device_type)
+
     if device is None:
         device = Device(
             mac_address=correlated.mac_address,
             ip_address=correlated.ip_address,
             hostname=correlated.hostname,
-            device_type=_to_device_type(correlated.device_type),
+            device_type=discovered_type,
+            auto_device_type=discovered_type,
+            manual_device_type=None,
             vendor=correlated.vendor,
             model=correlated.model,
             chassis_id=correlated.chassis_id,
@@ -51,8 +55,17 @@ def _upsert_device(db: Session, correlated: CorrelatedDevice) -> Device:
     else:
         device.ip_address = correlated.ip_address or device.ip_address
         device.hostname = correlated.hostname or device.hostname
-        if correlated.device_type != "unknown":
-            device.device_type = _to_device_type(correlated.device_type)
+        if discovered_type != DeviceType.unknown:
+            device.auto_device_type = discovered_type
+        elif device.auto_device_type is None:
+            device.auto_device_type = device.device_type
+
+        # Manual classification always takes precedence over automatic discovery
+        if device.manual_device_type is not None:
+            device.device_type = device.manual_device_type
+        elif discovered_type != DeviceType.unknown:
+            device.device_type = discovered_type
+
         device.vendor = correlated.vendor or device.vendor
         device.model = correlated.model or device.model
         device.chassis_id = correlated.chassis_id or device.chassis_id

@@ -72,6 +72,10 @@ def _migrate_add_columns() -> None:
         migrations.append("ALTER TABLE devices ADD COLUMN display_name VARCHAR(255)")
     if "icon_type" not in existing_cols:
         migrations.append("ALTER TABLE devices ADD COLUMN icon_type VARCHAR(32)")
+    if "auto_device_type" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN auto_device_type VARCHAR(32)")
+    if "manual_device_type" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN manual_device_type VARCHAR(32)")
 
     if migrations:
         with engine.begin() as conn:

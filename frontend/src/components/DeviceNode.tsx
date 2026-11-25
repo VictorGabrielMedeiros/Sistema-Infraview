@@ -15,6 +15,7 @@ import {
   Router,
   Server,
   Shield,
+  Tv,
   Wifi,
 } from "lucide-react"
 
@@ -102,6 +103,24 @@ const typeConfig: Record<
     badgeText: "Firewall",
     label: "Firewall",
   },
+  camera: {
+    bg: "bg-amber-50/90 hover:bg-amber-50 dark:bg-slate-900/95 dark:hover:bg-slate-850",
+    border: "border-amber-400/70 hover:border-amber-500 dark:border-amber-500/40 dark:hover:border-amber-400",
+    iconBg: "bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 dark:border dark:border-amber-800/50",
+    iconColor: "text-amber-700 dark:text-amber-300",
+    badgeBg: "bg-amber-100/70 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 dark:border dark:border-amber-900/40",
+    badgeText: "Câmera IP",
+    label: "Câmera IP",
+  },
+  tv: {
+    bg: "bg-indigo-50/90 hover:bg-indigo-50 dark:bg-slate-900/95 dark:hover:bg-slate-850",
+    border: "border-indigo-400/70 hover:border-indigo-500 dark:border-indigo-500/40 dark:hover:border-indigo-400",
+    iconBg: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border dark:border-indigo-800/50",
+    iconColor: "text-indigo-700 dark:text-indigo-300",
+    badgeBg: "bg-indigo-100/70 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border dark:border-indigo-900/40",
+    badgeText: "Televisão",
+    label: "Televisão",
+  },
   unknown: {
     bg: "bg-slate-50/90 hover:bg-slate-50 dark:bg-slate-900/95 dark:hover:bg-slate-850",
     border: "border-slate-300 hover:border-slate-400 dark:border-slate-800 dark:hover:border-slate-700",
@@ -126,6 +145,7 @@ export const ICON_MAP: Record<string, ReactNode> = {
   cloud: <Cloud className="h-4 w-4" />,
   database: <Database className="h-4 w-4" />,
   camera: <Camera className="h-4 w-4" />,
+  tv: <Tv className="h-4 w-4" />,
   unknown: <Network className="h-4 w-4" />,
 }
 
@@ -142,6 +162,7 @@ export const ICON_MAP_LG: Record<string, ReactNode> = {
   cloud: <Cloud className="h-5 w-5" />,
   database: <Database className="h-5 w-5" />,
   camera: <Camera className="h-5 w-5" />,
+  tv: <Tv className="h-5 w-5" />,
   flame: <Flame className="h-5 w-5" />,
   unknown: <Network className="h-5 w-5" />,
 }
@@ -156,6 +177,7 @@ export const ALL_ICON_KEYS = [
   "phone",
   "access_point",
   "firewall",
+  "tv",
   "cloud",
   "database",
   "camera",
@@ -172,6 +194,7 @@ export const ICON_LABELS: Record<string, string> = {
   phone: "Telefone IP",
   access_point: "Access Point",
   firewall: "Firewall",
+  tv: "Televisão",
   cloud: "Nuvem",
   database: "Banco de dados",
   camera: "Câmera",
@@ -186,6 +209,7 @@ export interface DeviceNodeData {
   icon_type: string | null
   display_name: string | null
   isHighlighted?: boolean
+  isManualType?: boolean
 }
 
 export function DeviceNode({ data, selected }: NodeProps) {
@@ -250,11 +274,18 @@ export function DeviceNode({ data, selected }: NodeProps) {
         <span className={cn("rounded-md px-1.5 py-0.5 font-medium text-[9px]", cfg.badgeBg)}>
           {ICON_LABELS[effectiveType] ?? effectiveType}
         </span>
-        {nodeData.l2_only && (
-          <Badge className="border-amber-300/80 bg-amber-50 text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/60 dark:text-amber-300 text-[9px] px-1.5 py-0">
-            L2
-          </Badge>
-        )}
+        <div className="flex items-center gap-1">
+          {nodeData.isManualType && (
+            <Badge className="border-blue-300/80 bg-blue-50 text-blue-700 dark:border-blue-700/50 dark:bg-blue-950/60 dark:text-blue-300 text-[9px] px-1.5 py-0">
+              Manual
+            </Badge>
+          )}
+          {nodeData.l2_only && (
+            <Badge className="border-amber-300/80 bg-amber-50 text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/60 dark:text-amber-300 text-[9px] px-1.5 py-0">
+              L2
+            </Badge>
+          )}
+        </div>
       </div>
     </div>
   )

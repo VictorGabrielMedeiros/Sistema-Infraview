@@ -7,6 +7,7 @@ import {
   ReactFlow,
   type Edge,
   type Node,
+  type ReactFlowInstance,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react"
@@ -19,14 +20,17 @@ import {
   BookmarkPlus,
   Copy,
   Download,
+  FileDown,
   Filter,
   FolderGit2,
   History,
+  LayoutGrid,
   Loader2,
   Maximize2,
   Minimize2,
   Pencil,
   RefreshCw,
+  RotateCcw,
   Save,
   Search,
   Trash2,
@@ -40,6 +44,7 @@ import {
   ALL_ICON_KEYS,
   ICON_LABELS,
 } from "@/components/DeviceNode"
+import { SegmentGroupNode } from "@/components/SegmentGroupNode"
 import { DiscoveryButton } from "@/components/DiscoveryButton"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -67,20 +72,23 @@ import {
   type SnapshotSummary,
 } from "@/lib/api"
 import { useTheme } from "@/lib/theme"
+import { buildOrganizedTopology } from "@/lib/topologyOrganizer"
 import { cn } from "@/lib/utils"
 
-const nodeTypes = { device: DeviceNode }
+const nodeTypes = { device: DeviceNode, segmentGroup: SegmentGroupNode }
 
 const TYPE_FILTERS = [
   "all",
   "switch",
   "router",
+  "firewall",
+  "access_point",
   "server",
   "computer",
-  "printer",
   "phone",
-  "access_point",
-  "firewall",
+  "printer",
+  "tv",
+  "camera",
   "unknown",
 ] as const
 
@@ -88,12 +96,14 @@ const TYPE_FILTER_LABELS: Record<string, string> = {
   all: "Todos",
   switch: "Switch",
   router: "Roteador",
+  firewall: "Firewall",
+  access_point: "AP",
   server: "Servidor",
   computer: "Computador",
-  printer: "Impressora",
   phone: "Telefone",
-  access_point: "AP",
-  firewall: "Firewall",
+  printer: "Impressora",
+  tv: "Televisão",
+  camera: "Câmera IP",
   unknown: "Outros",
 }
 
@@ -146,6 +156,7 @@ function toFlowNodes(apiNodes: TopologyNode[], searchFilter: string): Node[] {
         icon_type: n.icon_type,
         display_name: n.display_name,
         isHighlighted: isMatch,
+        isManualType: Boolean(n.is_manual_type),
       } satisfies DeviceNodeData,
       position: { x: 0, y: 0 },
     }
@@ -162,6 +173,10 @@ export function TopologyPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [direction, setDirection] = useState<"TB" | "LR">("TB")
+  const [layoutMode, setLayoutMode] = useState<"dagre" | "organized">("dagre")
+  const [organizeTick, setOrganizeTick] = useState(0)
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   // Modals
@@ -247,17 +262,24 @@ export function TopologyPage() {
       display_name?: string | null
       icon_type?: string | null
       device_type?: string | null
+      restore_auto_type?: boolean
     }) =>
       updateDevice(vars.id, {
         display_name: vars.display_name,
         icon_type: vars.icon_type,
         device_type: vars.device_type,
+        restore_auto_type: vars.restore_auto_type,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["topology"] })
       queryClient.invalidateQueries({ queryKey: ["device", selectedId] })
       queryClient.invalidateQueries({ queryKey: ["devices"] })
-      toast.success("Dispositivo atualizado com sucesso")
+      queryClient.invalidateQueries({ queryKey: ["metrics"] })
+      toast.success(
+        vars.restore_auto_type
+          ? "Classificação automática restaurada!"
+          : "Dispositivo atualizado com sucesso",
+      )
       setIsEditing(false)
     },
     onError: () => {
@@ -311,6 +333,23 @@ export function TopologyPage() {
   }, [currentData, typeFilter])
 
   useEffect(() => {
+    if (layoutMode === "organized") {
+      const organized = buildOrganizedTopology(
+        filtered.nodes,
+        filtered.edges,
+        searchQuery,
+        isDark,
+      )
+      setNodes(organized.nodes)
+      setEdges(organized.edges)
+      if (rfInstance) {
+        requestAnimationFrame(() => {
+          rfInstance.fitView({ padding: 0.12, duration: 300 })
+        })
+      }
+      return
+    }
+
     const flowNodes = toFlowNodes(filtered.nodes, searchQuery)
     const flowEdges = filtered.edges.map((e) => ({
       id: e.id,
@@ -327,9 +366,10 @@ export function TopologyPage() {
     }))
     setNodes(layoutElements(flowNodes, flowEdges, direction))
     setEdges(flowEdges)
-  }, [filtered, searchQuery, direction, isDark, setNodes, setEdges])
+  }, [filtered, searchQuery, direction, layoutMode, organizeTick, isDark, rfInstance, setNodes, setEdges])
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+    if (node.type === "segmentGroup") return
     setSelectedId(node.id)
     setIsEditing(false)
   }, [])
@@ -349,13 +389,48 @@ export function TopologyPage() {
 
   const saveEdit = useCallback(() => {
     if (!selectedId) return
+    const typeChanged = deviceQuery.data ? editType !== deviceQuery.data.device_type : true
     updateMutation.mutate({
       id: selectedId,
       display_name: editName.trim() || null,
       icon_type: editIcon,
-      device_type: editType,
+      device_type: typeChanged ? editType : undefined,
     })
-  }, [selectedId, editName, editIcon, editType, updateMutation])
+  }, [selectedId, editName, editIcon, editType, deviceQuery.data, updateMutation])
+
+  const handleOrganizeTopology = useCallback(() => {
+    setLayoutMode("organized")
+    setOrganizeTick((t) => t + 1)
+    toast.success("Topologia organizada por segmentos de infraestrutura e dispositivos finais!")
+  }, [])
+
+  const handleExportPdf = useCallback(async () => {
+    if (nodes.length === 0) {
+      toast.warning("Não há dispositivos na topologia para exportar.")
+      return
+    }
+    setIsExportingPdf(true)
+    try {
+      const netName =
+        selectedSnapshotId === "live"
+          ? "Rede Ao Vivo (Ativa)"
+          : snapshotsQuery.data?.find((s) => s.id === selectedSnapshotId)?.name || "Histórico"
+      const { exportTopologyToPdf } = await import("@/lib/topologyPdfExport")
+      await exportTopologyToPdf({
+        nodes,
+        networkName: netName,
+        deviceCount: currentData.nodes.length,
+        edgeCount: currentData.edges.length,
+        isOrganized: layoutMode === "organized",
+        isDark,
+      })
+      toast.success("PDF da topologia exportado com sucesso!")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao gerar PDF da topologia")
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }, [nodes, selectedSnapshotId, snapshotsQuery.data, currentData, layoutMode, isDark])
 
   const cancelEdit = useCallback(() => {
     setIsEditing(false)
@@ -457,6 +532,54 @@ export function TopologyPage() {
             <span className="hidden sm:inline">Histórico ({snapshotsQuery.data?.length ?? 0})</span>
           </Button>
 
+          {/* Organizar Topologia (Segmentação Automática) */}
+          <Button
+            variant={layoutMode === "organized" ? "default" : "outline"}
+            size="sm"
+            onClick={handleOrganizeTopology}
+            disabled={isEmpty}
+            className={cn(
+              "h-9 gap-1.5 text-xs font-medium shadow-xs",
+              layoutMode === "organized"
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:text-white"
+                : "bg-white text-slate-700 hover:border-emerald-400 hover:text-emerald-700",
+            )}
+            title="Organiza os dispositivos em segmentos visuais (Infraestrutura, Finais, Não identificados)"
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+            <span>Organizar Topologia</span>
+          </Button>
+
+          {layoutMode === "organized" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLayoutMode("dagre")}
+              className="h-9 gap-1 text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+              title="Voltar ao layout hierárquico padrão"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span className="hidden md:inline">Padrão</span>
+            </Button>
+          )}
+
+          {/* Exportar PDF */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={isEmpty || isExportingPdf}
+            className="h-9 gap-1.5 bg-white text-xs font-medium text-slate-700 shadow-xs hover:border-rose-400 hover:text-rose-600"
+            title="Exportar a topologia completa para arquivo PDF"
+          >
+            {isExportingPdf ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-rose-600" />
+            ) : (
+              <FileDown className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+            )}
+            <span>Exportar PDF</span>
+          </Button>
+
           <DiscoveryButton />
         </div>
       </PageHeader>
@@ -546,12 +669,13 @@ export function TopologyPage() {
           <ReactFlow
             nodes={nodes}
             edges={edges}
+            onInit={setRfInstance}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onNodeClick={onNodeClick}
             nodeTypes={nodeTypes}
             fitView
-            minZoom={0.15}
+            minZoom={0.1}
             maxZoom={2}
           >
             <Background gap={22} color={isDark ? "#1e293b" : "#cbd5e1"} />
@@ -989,10 +1113,15 @@ export function TopologyPage() {
               ) : null}
 
               {/* Badges */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
                   {TYPE_FILTER_LABELS[deviceQuery.data.device_type] ?? deviceQuery.data.device_type}
                 </Badge>
+                {deviceQuery.data.manual_device_type && (
+                  <Badge className="bg-blue-600 text-white text-[11px]">
+                    Classificação Manual
+                  </Badge>
+                )}
                 {deviceQuery.data.is_active ? (
                   <Badge className="bg-emerald-500 text-white">Online</Badge>
                 ) : (
@@ -1004,6 +1133,35 @@ export function TopologyPage() {
                   </Badge>
                 )}
               </div>
+
+              {deviceQuery.data.manual_device_type && (
+                <div className="flex items-center justify-between gap-2 rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2 text-xs text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-200">
+                  <div>
+                    <span className="font-semibold">Classificação automática original: </span>
+                    <span className="capitalize">
+                      {TYPE_FILTER_LABELS[deviceQuery.data.auto_device_type || "unknown"] ??
+                        deviceQuery.data.auto_device_type ??
+                        "Outros"}
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      updateMutation.mutate({
+                        id: deviceQuery.data!.id,
+                        restore_auto_type: true,
+                      })
+                    }
+                    disabled={updateMutation.isPending}
+                    className="h-7 gap-1 text-xs border-blue-300 bg-white hover:bg-blue-100 text-blue-800 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
+                    title="Remover classificação manual e voltar para a detectada automaticamente"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    Restaurar automático
+                  </Button>
+                </div>
+              )}
 
               {/* Data Rows */}
               <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900/60">

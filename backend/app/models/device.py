@@ -17,6 +17,8 @@ class DeviceType(str, enum.Enum):
     phone = "phone"
     access_point = "access_point"
     firewall = "firewall"
+    camera = "camera"
+    tv = "tv"
     unknown = "unknown"
 
 
@@ -29,6 +31,8 @@ class Device(Base):
     hostname: Mapped[str | None] = mapped_column(String(255), nullable=True)
     display_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     device_type: Mapped[DeviceType] = mapped_column(Enum(DeviceType), default=DeviceType.unknown)
+    auto_device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType), nullable=True)
+    manual_device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType), nullable=True)
     icon_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
     vendor: Mapped[str | None] = mapped_column(String(128), nullable=True)
     model: Mapped[str | None] = mapped_column(String(128), nullable=True)

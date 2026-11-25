@@ -6,6 +6,8 @@ export interface TopologyNode {
   id: string
   label: string
   type: string
+  auto_type?: string | null
+  is_manual_type?: boolean
   ip: string | null
   mac: string | null
   hostname: string | null
@@ -35,6 +37,8 @@ export interface DeviceDetail {
   hostname: string | null
   display_name: string | null
   device_type: string
+  auto_device_type?: string | null
+  manual_device_type?: string | null
   icon_type: string | null
   vendor: string | null
   model: string | null
@@ -54,6 +58,8 @@ export interface DeviceRead {
   hostname: string | null
   display_name: string | null
   device_type: string
+  auto_device_type?: string | null
+  manual_device_type?: string | null
   icon_type: string | null
   vendor: string | null
   model: string | null
@@ -65,6 +71,7 @@ export interface DeviceUpdate {
   display_name?: string | null
   icon_type?: string | null
   device_type?: string | null
+  restore_auto_type?: boolean
 }
 
 export interface PaginatedDevices {

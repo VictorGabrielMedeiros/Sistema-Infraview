@@ -81,6 +81,10 @@ def _infer_type_from_hostname(hostname: str) -> str | None:
         return "router"
     if any(k in lower for k in ("accesspoint", "unifi", "aironet")):
         return "access_point"
+    if any(k in lower for k in ("hikvision", "dahua", "intelbras", "ipcam", "camera", "nvr", "dvr")):
+        return "camera"
+    if any(k in lower for k in ("smarttv", "samsung-tv", "lg-tv", "bravia", "roku", "chromecast", "appletv", "firetv")):
+        return "tv"
     if any(k in lower for k in ("desktop", "notebook", "laptop", "workstation", "macbook")):
         return "computer"
 
