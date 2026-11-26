@@ -6,7 +6,7 @@ import type { TopologyEdge, TopologyNode } from "@/lib/api"
 export type SegmentKey = "infra" | "endpoints" | "unknown"
 
 const INFRA_TYPES = new Set(["firewall", "router", "switch", "access_point", "server"])
-const ENDPOINT_TYPES = new Set(["computer", "phone", "printer", "tv", "camera"])
+const ENDPOINT_TYPES = new Set(["computer", "phone", "tablet", "printer", "tv", "camera"])
 
 const INFRA_TIER_ORDER: Record<string, number> = {
   firewall: 0,
@@ -19,9 +19,10 @@ const INFRA_TIER_ORDER: Record<string, number> = {
 const ENDPOINT_ORDER: Record<string, number> = {
   computer: 0,
   phone: 1,
-  printer: 2,
-  tv: 3,
-  camera: 4,
+  tablet: 2,
+  printer: 3,
+  tv: 4,
+  camera: 5,
 }
 
 const CARD_WIDTH = 210

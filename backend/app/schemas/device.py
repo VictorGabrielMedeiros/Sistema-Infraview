@@ -16,6 +16,10 @@ class DeviceBase(BaseModel):
     model: str | None = None
     chassis_id: str | None = None
     mgmt_ip: str | None = None
+    is_randomized_mac: bool = False
+    identification_method: str | None = None
+    identification_confidence: str | None = None
+    device_category_detail: str | None = None
     sources: list[str] = Field(default_factory=list)
 
 

@@ -86,6 +86,7 @@ const TYPE_FILTERS = [
   "server",
   "computer",
   "phone",
+  "tablet",
   "printer",
   "tv",
   "camera",
@@ -100,7 +101,8 @@ const TYPE_FILTER_LABELS: Record<string, string> = {
   access_point: "AP",
   server: "Servidor",
   computer: "Computador",
-  phone: "Telefone",
+  phone: "Smartphone / Tel.",
+  tablet: "Tablet",
   printer: "Impressora",
   tv: "Televisão",
   camera: "Câmera IP",
@@ -1217,6 +1219,51 @@ export function TopologyPage() {
                   <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Modelo</span>
                   <span className="text-slate-800 dark:text-slate-200 text-xs">{deviceQuery.data.model ?? "—"}</span>
                 </div>
+
+                {deviceQuery.data.device_category_detail && (
+                  <div className="flex items-center justify-between p-3 text-sm">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Subcategoria</span>
+                    <span className="text-slate-800 dark:text-slate-200 text-xs font-medium">
+                      {deviceQuery.data.device_category_detail}
+                    </span>
+                  </div>
+                )}
+
+                {deviceQuery.data.is_randomized_mac && (
+                  <div className="flex items-center justify-between p-3 text-sm">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Privacidade MAC</span>
+                    <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 text-[10px]">
+                      MAC Privado / Aleatório
+                    </Badge>
+                  </div>
+                )}
+
+                {deviceQuery.data.identification_method && (
+                  <div className="flex items-center justify-between p-3 text-sm">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Método de Identificação</span>
+                    <span className="text-slate-800 dark:text-slate-200 text-xs">
+                      {deviceQuery.data.identification_method}
+                    </span>
+                  </div>
+                )}
+
+                {deviceQuery.data.identification_confidence && (
+                  <div className="flex items-center justify-between p-3 text-sm">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Confiança</span>
+                    <Badge
+                      className={cn(
+                        "text-[10px] capitalize",
+                        deviceQuery.data.identification_confidence === "alta"
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                          : deviceQuery.data.identification_confidence === "media"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
+                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+                      )}
+                    >
+                      {deviceQuery.data.identification_confidence}
+                    </Badge>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between p-3 text-sm">
                   <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Fontes de Descoberta</span>

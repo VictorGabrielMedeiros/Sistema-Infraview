@@ -12,6 +12,7 @@ from app.services.discovery.arp import scan_arp
 from app.services.discovery.correlator import CorrelatedDevice, RawDevice, RawLink, correlate, merge_device, normalize_mac
 from app.services.discovery.lldp import scan_lldp
 from app.services.discovery.ping import scan_ping
+from app.services.discovery.mobile_identifier import identify_mobile_devices
 from app.services.discovery.resolver import resolve_hostnames
 from app.services.snmp import enrich_devices
 
@@ -36,6 +37,11 @@ def _upsert_device(db: Session, correlated: CorrelatedDevice) -> Device:
 
     discovered_type = _to_device_type(correlated.device_type)
 
+    is_randomized = bool(getattr(correlated, "is_randomized_mac", False))
+    id_method = getattr(correlated, "identification_method", None)
+    id_confidence = getattr(correlated, "identification_confidence", None)
+    cat_detail = getattr(correlated, "device_category_detail", None)
+
     if device is None:
         device = Device(
             mac_address=correlated.mac_address,
@@ -48,6 +54,10 @@ def _upsert_device(db: Session, correlated: CorrelatedDevice) -> Device:
             model=correlated.model,
             chassis_id=correlated.chassis_id,
             mgmt_ip=correlated.mgmt_ip,
+            is_randomized_mac=is_randomized,
+            identification_method=id_method,
+            identification_confidence=id_confidence,
+            device_category_detail=cat_detail,
             sources=correlated.sources,
             is_active=True,
         )
@@ -71,6 +81,13 @@ def _upsert_device(db: Session, correlated: CorrelatedDevice) -> Device:
         device.chassis_id = correlated.chassis_id or device.chassis_id
         device.mgmt_ip = correlated.mgmt_ip or device.mgmt_ip
         device.mac_address = correlated.mac_address or device.mac_address
+        device.is_randomized_mac = is_randomized
+        if id_method:
+            device.identification_method = id_method
+        if id_confidence:
+            device.identification_confidence = id_confidence
+        if cat_detail:
+            device.device_category_detail = cat_detail
         device.sources = list(set((device.sources or []) + correlated.sources))
         device.last_seen = datetime.now(timezone.utc)
         device.is_active = True
@@ -226,6 +243,9 @@ def run_discovery(db: Session) -> DiscoveryRun:
                             item.device_type = e.device_type
                         if "snmp" not in item.sources:
                             item.sources.append("snmp")
+
+            # Multi-source mobile & OUI identification (OUI, DHCP leases, mDNS, private MAC)
+            correlated = identify_mobile_devices(correlated)
 
             # 3) Short write transaction for persistence only
             run = db.get(DiscoveryRun, run_id)

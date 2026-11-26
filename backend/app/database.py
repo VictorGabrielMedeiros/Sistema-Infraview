@@ -76,6 +76,14 @@ def _migrate_add_columns() -> None:
         migrations.append("ALTER TABLE devices ADD COLUMN auto_device_type VARCHAR(32)")
     if "manual_device_type" not in existing_cols:
         migrations.append("ALTER TABLE devices ADD COLUMN manual_device_type VARCHAR(32)")
+    if "is_randomized_mac" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN is_randomized_mac BOOLEAN DEFAULT 0")
+    if "identification_method" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN identification_method VARCHAR(128)")
+    if "identification_confidence" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN identification_confidence VARCHAR(16)")
+    if "device_category_detail" not in existing_cols:
+        migrations.append("ALTER TABLE devices ADD COLUMN device_category_detail VARCHAR(128)")
 
     if migrations:
         with engine.begin() as conn:

@@ -44,6 +44,10 @@ export interface DeviceDetail {
   model: string | null
   chassis_id: string | null
   mgmt_ip: string | null
+  is_randomized_mac?: boolean
+  identification_method?: string | null
+  identification_confidence?: string | null
+  device_category_detail?: string | null
   sources: string[]
   first_seen: string
   last_seen: string
@@ -63,6 +67,10 @@ export interface DeviceRead {
   icon_type: string | null
   vendor: string | null
   model: string | null
+  is_randomized_mac?: boolean
+  identification_method?: string | null
+  identification_confidence?: string | null
+  device_category_detail?: string | null
   sources: string[]
   last_seen: string
 }

@@ -15,6 +15,7 @@ class DeviceType(str, enum.Enum):
     server = "server"
     computer = "computer"
     phone = "phone"
+    tablet = "tablet"
     access_point = "access_point"
     firewall = "firewall"
     camera = "camera"
@@ -38,6 +39,10 @@ class Device(Base):
     model: Mapped[str | None] = mapped_column(String(128), nullable=True)
     chassis_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     mgmt_ip: Mapped[str | None] = mapped_column(String(45), nullable=True)
+    is_randomized_mac: Mapped[bool] = mapped_column(Boolean, default=False)
+    identification_method: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    identification_confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    device_category_detail: Mapped[str | None] = mapped_column(String(128), nullable=True)
     sources: Mapped[list] = mapped_column(JSON, default=list)
     first_seen: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     last_seen: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())

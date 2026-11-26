@@ -71,7 +71,7 @@ def get_device(device_id: str, db: Session = Depends(get_db)):
 
 VALID_ICON_TYPES = {
     "router", "switch", "server", "computer", "printer",
-    "phone", "access_point", "firewall", "monitor", "cloud",
+    "phone", "tablet", "access_point", "firewall", "monitor", "cloud",
     "database", "camera", "tv", "unknown",
 }
 
@@ -191,16 +191,20 @@ def export_devices_csv(db: Session = Depends(get_db)):
     devices = db.query(Device).filter(Device.is_active.is_(True)).order_by(Device.hostname).all()
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["hostname", "display_name", "ip", "mac", "type", "vendor", "model", "sources", "last_seen"])
+    writer.writerow(["hostname", "display_name", "ip", "mac", "randomized_mac", "type", "category_detail", "vendor", "model", "identification_method", "confidence", "sources", "last_seen"])
     for d in devices:
         writer.writerow([
             d.hostname or "",
             d.display_name or "",
             d.ip_address or "",
             d.mac_address or "",
+            "yes" if d.is_randomized_mac else "no",
             d.device_type.value,
+            d.device_category_detail or "",
             d.vendor or "",
             d.model or "",
+            d.identification_method or "",
+            d.identification_confidence or "",
             ",".join(d.sources or []),
             d.last_seen.isoformat() if d.last_seen else "",
         ])

@@ -16,9 +16,18 @@ const TYPE_BADGE: Record<string, string> = {
   server: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/60 dark:text-violet-300 dark:border-violet-800/50",
   computer: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/50",
   phone: "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/60 dark:text-pink-300 dark:border-pink-800/50",
+  tablet: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-950/60 dark:text-fuchsia-300 dark:border-fuchsia-800/50",
   access_point: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800/50",
   firewall: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/50",
+  camera: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/50",
+  tv: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/50",
   unknown: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800/70 dark:text-slate-400 dark:border-slate-700/50",
+}
+
+const CONFIDENCE_BADGE: Record<string, string> = {
+  alta: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/50",
+  media: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/50",
+  baixa: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/50",
 }
 
 export function DevicesPage() {
@@ -138,8 +147,8 @@ export function DevicesPage() {
                 <th className="px-3 py-3 sm:px-4">IP</th>
                 <th className="hidden px-3 py-3 sm:table-cell sm:px-4">MAC</th>
                 <th className="px-3 py-3 sm:px-4">Tipo</th>
-                <th className="hidden px-3 py-3 md:table-cell md:px-4">Vendor</th>
-                <th className="hidden px-3 py-3 lg:table-cell lg:px-4">Fontes</th>
+                <th className="hidden px-3 py-3 md:table-cell md:px-4">Fabricante / Modelo</th>
+                <th className="hidden px-3 py-3 lg:table-cell lg:px-4">Identificação</th>
                 <th className="hidden px-3 py-3 sm:table-cell sm:px-4">Última visão</th>
                 <th className="px-3 py-3 text-right sm:px-4">Ação</th>
               </tr>
@@ -177,7 +186,12 @@ export function DevicesPage() {
                         {d.ip_address ?? "—"}
                       </td>
                       <td className="hidden px-3 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 sm:table-cell sm:px-4">
-                        {d.mac_address ?? "—"}
+                        <div>{d.mac_address ?? "—"}</div>
+                        {d.is_randomized_mac && (
+                          <span className="inline-block mt-0.5 rounded bg-amber-100 px-1.5 py-0.2 text-[10px] font-sans font-medium text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                            MAC Privado
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-3 sm:px-4">
                         <span
@@ -187,12 +201,29 @@ export function DevicesPage() {
                         >
                           {d.device_type}
                         </span>
+                        {d.device_category_detail && (
+                          <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                            {d.device_category_detail}
+                          </div>
+                        )}
                       </td>
                       <td className="hidden px-3 py-3 text-slate-600 dark:text-slate-400 md:table-cell md:px-4">
-                        {d.vendor ?? "—"}
+                        <div className="font-medium text-slate-800 dark:text-slate-200">{d.vendor ?? "—"}</div>
+                        {d.model && (
+                          <div className="text-xs text-slate-500 dark:text-slate-400">{d.model}</div>
+                        )}
                       </td>
                       <td className="hidden px-3 py-3 lg:table-cell lg:px-4">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap items-center gap-1">
+                          {d.identification_confidence && (
+                            <span
+                              className={`rounded-md border px-1.5 py-0.5 text-[10px] font-semibold capitalize ${
+                                CONFIDENCE_BADGE[d.identification_confidence] ?? CONFIDENCE_BADGE.baixa
+                              }`}
+                            >
+                              {d.identification_confidence}
+                            </span>
+                          )}
                           {d.sources.map((s) => (
                             <Badge
                               key={s}
@@ -202,6 +233,11 @@ export function DevicesPage() {
                             </Badge>
                           ))}
                         </div>
+                        {d.identification_method && (
+                          <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                            {d.identification_method}
+                          </div>
+                        )}
                       </td>
                       <td className="hidden px-3 py-3 text-xs text-slate-500 dark:text-slate-400 sm:table-cell sm:px-4">
                         {new Date(d.last_seen).toLocaleDateString("pt-BR")}
